@@ -1,46 +1,65 @@
 public void UpdateClientWeapon(int client, int iWeapon)
 {
-  if(iWeapon != INVALID_ENT_REFERENCE)
+  if(IsValidClient(client, true))
   {
-    int iWeaponNum = CSGOItems_GetWeaponNumByWeapon(iWeapon);
-    SetEntProp(iWeapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
-
-    int iPaintKit = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
-    if(iPaintKit > 1)
+    if(iWeapon != INVALID_ENT_REFERENCE)
     {
-      SetEntProp(iWeapon, Prop_Send, "m_iItemIDLow", -1);
-      SetEntProp(iWeapon, Prop_Send, "m_nFallbackPaintKit", iPaintKit);
-
-      float fWear = g_ArrayStoredWeaponsWear[client].Get(iWeaponNum);
-      if(fWear > 0.0)
+      int iWeaponNum = CSGOItems_GetWeaponNumByWeapon(iWeapon);
+      SetEntProp(iWeapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
+      if(g_ArrayStoredWeaponsPaint[client].Length >= iWeaponNum)
       {
-        SetEntPropFloat(iWeapon, Prop_Send, "m_flFallbackWear", fWear);
-      }
+        int iPaintKit = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
+        if(iPaintKit > 1)
+        {
+          SetEntProp(iWeapon, Prop_Send, "m_iItemIDLow", -1);
+          SetEntProp(iWeapon, Prop_Send, "m_nFallbackPaintKit", iPaintKit);
 
-      int iPattern = g_ArrayStoredWeaponsPattern[client].Get(iWeaponNum);
-      if(iPattern > 0)
+          if(g_ArrayStoredWeaponsWear[client].Length >= iWeaponNum)
+          {
+            float fWear = g_ArrayStoredWeaponsWear[client].Get(iWeaponNum);
+            if(fWear > 0.0)
+            {
+              SetEntPropFloat(iWeapon, Prop_Send, "m_flFallbackWear", fWear);
+            }
+          }
+          if(g_ArrayStoredWeaponsPattern[client].Length >= iWeaponNum)
+          {
+            int iPattern = g_ArrayStoredWeaponsPattern[client].Get(iWeaponNum);
+            if(iPattern > 0)
+            {
+              SetEntProp(iWeapon, Prop_Send, "m_nFallbackSeed", iPattern);
+            }
+          }
+        }
+      }
+      if(g_ArrayStoredWeaponsQuality[client].Length >= iWeaponNum)
       {
-        SetEntProp(iWeapon, Prop_Send, "m_nFallbackSeed", iPattern);
+        int iQuality = g_ArrayStoredWeaponsQuality[client].Get(iWeaponNum);
+        if(iQuality > 0)
+        {
+          SetEntProp(iWeapon, Prop_Send, "m_iEntityQuality", iQuality);
+        }
       }
-    }
-    
-    int iQuality = g_ArrayStoredWeaponsQuality[client].Get(iWeaponNum);
-    if(iQuality > 0)
-    {
-      SetEntProp(iWeapon, Prop_Send, "m_iEntityQuality", iQuality);
-    }
-    bool bStatTrackEnabled = view_as<bool>(g_ArrayStoredWeaponsStatTrackEnabled[client].Get(iWeaponNum));
-    int iStatTrackKills = g_ArrayStoredWeaponsStatTrackKills[client].Get(iWeaponNum);
-    if(bStatTrackEnabled)
-    {
-      SetEntProp(iWeapon, Prop_Send, "m_nFallbackStatTrak", iStatTrackKills);
-    }
+      if((g_ArrayStoredWeaponsStatTrackEnabled[client].Length >= iWeaponNum) && (g_ArrayStoredWeaponsStatTrackKills[client].Length >= iWeaponNum))
+      {
+        bool bStatTrackEnabled = view_as<bool>(g_ArrayStoredWeaponsStatTrackEnabled[client].Get(iWeaponNum));
+        int iStatTrackKills = g_ArrayStoredWeaponsStatTrackKills[client].Get(iWeaponNum);
+        if(bStatTrackEnabled)
+        {
+          SetEntProp(iWeapon, Prop_Send, "m_nFallbackStatTrak", iStatTrackKills);
+        }
+      }  
 
-    char szNameTag[1024];
-    g_ArrayStoredWeaponsNametag[client].GetString(iWeaponNum, szNameTag, sizeof(szNameTag));
-    if(strlen(szNameTag) > 0)
-    {
-      SetEntDataString(iWeapon, g_iNameTagOffset, szNameTag, sizeof(szNameTag));
+      if(g_ArrayStoredWeaponsNametag[client].Length >= iWeaponNum)
+      {
+        char szNameTag[1024];
+        g_ArrayStoredWeaponsNametag[client].GetString(iWeaponNum, szNameTag, sizeof(szNameTag));
+        if(strlen(szNameTag) > 0)
+        {
+          SetEntDataString(iWeapon, g_iNameTagOffset, szNameTag, sizeof(szNameTag));
+        }
+      }
+      
     }
   }
 }
