@@ -113,7 +113,7 @@ public void AttachGloveSkin(int client, int iGloveDef, int iSkinDef)
     SetEntPropString(client, Prop_Send, "m_szArmsModel", "");
     SDKCall(g_hGiveWearableCall, client, iGloves);
     RefreshVM(client);
-    SDKHook(iGloves, SDKHook_SetTransmit, EventSDK_SetTransmit);
+    //SDKHook(iGloves, SDKHook_SetTransmit, EventSDK_SetTransmit);
   }
 }
 public Action EventSDK_SetTransmit(int iGloves, int client)
@@ -141,6 +141,15 @@ public void RemoveClientGloves(int client)
         Call_Finish();
     }
 }
+
+public bool IsKnifeForbidden(int iDefIndex)
+{
+    if(iDefIndex == 42 || iDefIndex == 59 || iDefIndex == 41 || iDefIndex == 74 || iDefIndex == 80)
+    {
+        return true;
+    }
+    return false;
+}
 stock bool RefreshVM(int client)
 {
     if(IsValidClient(client, true))
@@ -155,4 +164,22 @@ stock bool RefreshVM(int client)
         }
     }
     return false;
+}
+stock int FindClientBySteamID64(const char[] szSteamID64)
+{
+  for(int i = 0; i <= MaxClients; i++)
+  {
+    if(IsValidClient(i))
+    {
+      char szClientSteamID64[64];
+      if(GetClientAuthId(i, AuthId_SteamID64, szClientSteamID64, sizeof(szClientSteamID64)))
+      {
+        if(StrEqual(szSteamID64, szClientSteamID64, false))
+        {
+          return i;
+        }
+      }
+    }
+  }
+  return -1;
 }

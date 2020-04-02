@@ -13,6 +13,7 @@
 #include "files/globals.sp"
 #include "files/client.sp"
 #include "files/commands.sp"
+//#include "files/servercommands.sp"
 #include "files/menu.sp"
 #include "files/menu_callback.sp"
 #include "files/sdkhooks.sp"
@@ -20,17 +21,12 @@
 #include "files/ptah.sp"
 #include "files/native.sp"
 #include "files/database.sp"
-/*
-Dodělat DB connection
 
-
-
-*/
 public Plugin myinfo =
 {
   name = "e'Tweaker",
   author = "ESK0",
-  version = "1.4",
+  version = "1.5",
   description = "Tweaker",
   url = "www.steamcommunity.com/id/esk0"
 };
@@ -66,6 +62,8 @@ public void OnPluginStart()
   RegConsoleCmd("sm_gloves", Command_Gloves);
   RegConsoleCmd("sm_nametag", Command_NameTag);
   RegConsoleCmd("sm_stattrak", Command_StatTrak);
+
+  //RegServerCmd("tweaker_updateweapon", ServerCommand_UpdateWeapon, "", ADMFLAG_RCON);
 
   HookEvent("round_start", Event_OnRoundStart);
   HookEvent("round_end", Event_OnRoundEnd);

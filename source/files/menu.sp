@@ -89,7 +89,7 @@ stock void ShowAllWeaponsPaints(int client, int iWeaponNum, int position = 0)
         }
         else
         {
-            menu.AddItem("none", "Žádný dostupný skin", ITEMDRAW_DISABLED);
+            menu.AddItem("none", "No skin available", ITEMDRAW_DISABLED);
         }
         menu.ExitBackButton = true;
         if(position == 0)
@@ -155,7 +155,7 @@ stock void ShowWeaponNumSkinsMenu(int client, int iWeaponNum, int position = 0)
         }
         else
         {
-            menu.AddItem("none", "Žádný dostupný skin", ITEMDRAW_DISABLED);
+            menu.AddItem("none", "No skin available", ITEMDRAW_DISABLED);
         }
         if(CSGOItems_IsDefIndexKnife(iWepDef))
         {
@@ -359,10 +359,11 @@ stock void BuildKnivesMenu(int client, int position = 0)
             {
                 CSGOItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
                 int iWepDef = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeapon);
-                if(iWepDef == 42 || iWepDef == 59 || iWepDef == 41 || iWepDef == 74)
+                if(IsKnifeForbidden(iWepDef))
                 {
                     continue;
                 }
+
                 IntToString(iWepDef, szWeaponDefIndex, sizeof(szWeaponDefIndex));
                 menu.AddItem(szWeaponDefIndex, szWeaponDisplayName, iWepDef == g_iStoredKnife[client]?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
             }

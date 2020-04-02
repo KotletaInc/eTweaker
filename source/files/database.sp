@@ -167,7 +167,7 @@ public void Database_OnClientDataRecived(Database db, DBResultSet results, const
                             g_ArrayStoredWeaponsPaint[client].Set(iWeaponNum, iSkinDefIndex);
                             if(CSGOItems_IsDefIndexKnife(iDefIndex))
                             {
-                                if(bActive == true)
+                                if(bActive == true && !IsKnifeForbidden(iDefIndex))
                                 {
                                     g_iStoredKnife[client] = iDefIndex;
                                 }
