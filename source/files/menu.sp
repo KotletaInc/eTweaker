@@ -16,14 +16,14 @@ public void BuildMainMenu(int client)
 public void BuildWeaponPaintsMenu(int client)
 {
     if(IsValidClient(client))
-    {
+    {   
         Menu menu = new Menu(h_weaponpaintsmenu);
         menu.SetTitle("- Select weapon -");
-        menu.AddItem("all", "All paints", IsPlayerAlive(client)?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
+        menu.AddItem("all", "All paints", !IsPlayerAlive(client)?ITEMDRAW_DISABLED:(g_cvAllowAllPaintsSelection.BoolValue?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED));
         menu.AddItem("current", "Current weapon", IsPlayerAlive(client)?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
-        menu.AddItem("primary", "Primary weapons");
-        menu.AddItem("secondary", "Secondary weapons");
-        menu.AddItem("knives", "Knives");
+        menu.AddItem("primary", "Primary weapons", g_cvAllowPrimarySkinSelection.BoolValue?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
+        menu.AddItem("secondary", "Secondary weapons", g_cvAllowSecondarySkinSelection.BoolValue?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
+        menu.AddItem("knives", "Knives", g_cvAllowKnifeSkinSelection.BoolValue?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
         menu.ExitBackButton = true;
         menu.Display(client, MENU_TIME_FOREVER);
     }
@@ -42,7 +42,11 @@ stock void ShowActiveWeaponSkinsMenu(int client, int iWeaponNum, int position = 
             char szSkinDisplayName[32];
             char szSkinDef[12];
             int iCurrentSkinDef = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
-
+            int iRandomSkin = GetRandomInt(0, g_ArrayWeapons[iWeaponNum].Length -1);
+            int iRandomSkinDef = g_ArrayWeapons[iWeaponNum].Get(iRandomSkin);
+            char szRandomSkinDef[12];
+            IntToString(iRandomSkinDef, szRandomSkinDef, sizeof(szRandomSkinDef));
+            menu.AddItem(szRandomSkinDef, "Random skin", g_cvAllowCurrentWeaponRandomSkin.BoolValue?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
             for(int iSkin = 0; iSkin < g_ArrayWeapons[iWeaponNum].Length; iSkin++)
             {
                 int iSkinDef = g_ArrayWeapons[iWeaponNum].Get(iSkin);
@@ -53,7 +57,7 @@ stock void ShowActiveWeaponSkinsMenu(int client, int iWeaponNum, int position = 
         }
         else
         {
-            menu.AddItem("none", "Žádný dostupný skin", ITEMDRAW_DISABLED);
+            menu.AddItem("none", "No skin available", ITEMDRAW_DISABLED);
         }
         menu.ExitBackButton = true;
         if(position == 0)
@@ -79,6 +83,11 @@ stock void ShowAllWeaponsPaints(int client, int iWeaponNum, int position = 0)
             char szSkinDisplayName[32];
             char szMenuKey[12];
             int iCurrentSkinDef = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
+            int iRandomSkin = GetRandomInt(0, g_iSkinCount - 1);
+            int iRandomSkinDef = CSGOItems_GetSkinDefIndexBySkinNum(iRandomSkin);
+            char szRandomSkinDef[12];
+            IntToString(iRandomSkinDef, szRandomSkinDef, sizeof(szRandomSkinDef));
+            menu.AddItem(szRandomSkinDef, "Random skin", g_cvAllowAllSkinsRandomSkin.BoolValue?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
             for(int iSkin = 0; iSkin < g_iSkinCount; iSkin++)
             {
                 int iSkinDef = CSGOItems_GetSkinDefIndexBySkinNum(iSkin);
@@ -145,6 +154,12 @@ stock void ShowWeaponNumSkinsMenu(int client, int iWeaponNum, int position = 0)
             char szSkinDisplayName[32];
             char szMenuKey[12];
             int iCurrentSkinDef = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
+            int iRandomSkin = GetRandomInt(0, g_ArrayWeapons[iWeaponNum].Length -1);
+            int iRandomSkinDef = g_ArrayWeapons[iWeaponNum].Get(iRandomSkin);
+            char szRandomSkinDef[12];
+            IntToString(iRandomSkinDef, szRandomSkinDef, sizeof(szRandomSkinDef));
+            Format(szMenuKey, sizeof(szMenuKey), "%i;%i", iWeaponNum, iRandomSkinDef);
+            menu.AddItem(szMenuKey, "Random skin", g_cvAllowWeaponRandomSkin.BoolValue?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
             for(int iSkin = 0; iSkin < g_ArrayWeapons[iWeaponNum].Length; iSkin++)
             {
             int iSkinDef = g_ArrayWeapons[iWeaponNum].Get(iSkin);
@@ -359,6 +374,10 @@ stock void BuildKnivesMenu(int client, int position = 0)
             {
                 CSGOItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
                 int iWepDef = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeapon);
+                if((!g_cvAllowKnifeBareHands.BoolValue && iWepDef == 69) || (!g_cvAllowKnifeAxe.BoolValue && iWepDef == 75) || (!g_cvAllowKnifeHammer.BoolValue && iWepDef == 76) || (!g_cvAllowKnifeWrench.BoolValue && iWepDef == 78))
+                {
+                    continue;
+                }
                 if(IsKnifeForbidden(iWepDef))
                 {
                     continue;
@@ -388,6 +407,7 @@ public void BuildGlovesMenu(int client)
         Menu menu = new Menu(h_glovemenu);
         menu.SetTitle("- Gloves -");
         menu.AddItem("default", "Default", strlen(g_szStoredGloves[client]) == 0?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
+        menu.AddItem("random", "Random gloves", g_cvAllowGlovesRandomSkin.BoolValue?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
         for(int iGlove = 0; iGlove < g_iGloveCount; iGlove++)
         {
             if(iGlove != 1 && iGlove != 2)

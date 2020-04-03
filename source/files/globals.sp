@@ -43,3 +43,17 @@ int g_iNameTagOffset = -1;
 Handle g_hGiveWearableCall;
 Handle g_hRemoveWearableCall;
 Handle g_hOnGlovesRemoved;
+
+ConVar g_cvSurfFix;
+ConVar g_cvAllowAllPaintsSelection;
+ConVar g_cvAllowAllSkinsRandomSkin;
+ConVar g_cvAllowGlovesRandomSkin;
+ConVar g_cvAllowCurrentWeaponRandomSkin;
+ConVar g_cvAllowWeaponRandomSkin;
+ConVar g_cvAllowPrimarySkinSelection;
+ConVar g_cvAllowSecondarySkinSelection;
+ConVar g_cvAllowKnifeSkinSelection;
+ConVar g_cvAllowKnifeBareHands;
+ConVar g_cvAllowKnifeAxe;
+ConVar g_cvAllowKnifeHammer;
+ConVar g_cvAllowKnifeWrench;

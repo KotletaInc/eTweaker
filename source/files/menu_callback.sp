@@ -595,6 +595,18 @@ public int h_glovemenu(Menu menu, MenuAction action, int client, int index)
                 Format(g_szStoredGloves[client], sizeof(g_szStoredGloves[]), "");
                 RemoveClientGloves(client);
                 g_bChangedGloves[client] = true;
+                BuildGlovesMenu(client);
+            }
+            else if(StrEqual(szItem, "random", false))
+            {
+                int iRandomGloveNum = GetRandomInt(3, g_iGloveCount - 1);                
+                int iRandomGloveSkin = GetRandomInt(0, g_ArrayGloves[iRandomGloveNum].Length - 1);
+                int iRandomGloveDef = CSGOItems_GetGlovesDefIndexByGlovesNum(iRandomGloveNum);
+                int iRandomGloveSkinDef = g_ArrayGloves[iRandomGloveNum].Get(iRandomGloveSkin);
+                AttachGloveSkin(client, iRandomGloveDef, iRandomGloveSkinDef);
+                Format(g_szStoredGloves[client], sizeof(g_szStoredGloves[]), "%i;%i", iRandomGloveDef, iRandomGloveSkinDef);
+                g_bChangedGloves[client] = true;
+                BuildGlovesMenu(client);
             }
             else
             {
