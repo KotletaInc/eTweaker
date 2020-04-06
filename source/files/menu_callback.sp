@@ -5,7 +5,8 @@ public int h_mainmenu(Menu menu, MenuAction action, int client, int index)
         if(action == MenuAction_Select)
         {
             char szMenuItem[12];
-            menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
+            char szMenuDisplay[32];
+            menu.GetItem(index, szMenuItem, sizeof(szMenuItem), _,szMenuDisplay, sizeof(szMenuDisplay));
             if(StrEqual(szMenuItem, "paints", false))
             {
                 BuildWeaponPaintsMenu(client);
@@ -48,7 +49,7 @@ public int h_weaponpaintsmenu(Menu menu, MenuAction action, int client, int inde
             int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
             if(StrEqual(szMenuItem, "current", false))
             {
-                if(-1 < iActiveWeaponNum <= CSGOItems_GetWeaponCount())
+                if(-1 < iActiveWeaponNum <= g_iWeaponCount)
                 {
                     ShowActiveWeaponSkinsMenu(client, iActiveWeaponNum);
                 }
@@ -67,8 +68,9 @@ public int h_weaponpaintsmenu(Menu menu, MenuAction action, int client, int inde
             }
             else if(StrEqual(szMenuItem, "all", false))
             {
-                if(-1 < iActiveWeaponNum <= 65)
+                if(-1 < iActiveWeaponNum <= g_iWeaponCount)
                 {
+
                     ShowAllWeaponsPaints(client, iActiveWeaponNum);
                 }
             }

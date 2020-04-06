@@ -26,7 +26,7 @@ public Plugin myinfo =
 {
 	name = "e'Tweaker",
 	author = "ESK0",
-	version = "1.6",
+	version = "1.6.1",
 	description = "Tweaker",
 	url = "www.steamcommunity.com/id/esk0"
 };
