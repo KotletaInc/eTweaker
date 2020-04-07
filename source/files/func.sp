@@ -160,6 +160,27 @@ public void RemoveClientGloves(int client)
 	}
 }
 
+public void RemoveForbiddenWeaponFromPlayers(int iKnifeDef)
+{
+	for(int client = 0; client <= MaxClients; client++)
+	{
+		if(!IsValidClient(client))
+		{
+			continue;
+		}
+		if(g_iStoredKnife[client] != iKnifeDef)
+		{
+			continue;
+		}
+		g_iStoredKnife[client] = 0;
+		int iWeapon = CSGOItems_FindWeaponByDefIndex(client, iKnifeDef);
+		if(IsPlayerAlive(client) && CSGOItems_IsValidWeapon(iWeapon))
+		{
+			CSGOItems_GiveWeapon(client, "weapon_knife");
+		}
+	}
+}
+
 public bool IsKnifeForbidden(int iDefIndex)
 {
 	return (iDefIndex == 41 || iDefIndex == 42 || iDefIndex == 59 || iDefIndex == 74 || iDefIndex == 80);

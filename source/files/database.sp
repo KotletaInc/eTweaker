@@ -118,6 +118,12 @@ public void Database_LoadClientData(int client)
 		g_hDatabase.Query(Database_OnClientDataRecived, szBuffer, GetClientUserId(client));
 	}
 }
+
+public bool IsWeaponForbiddenByCvar(int iWepDef)
+{
+	return ((!g_cvAllowKnifeBareHands.BoolValue && iWepDef == 69) || (!g_cvAllowKnifeAxe.BoolValue && iWepDef == 75) || (!g_cvAllowKnifeHammer.BoolValue && iWepDef == 76) || (!g_cvAllowKnifeWrench.BoolValue && iWepDef == 78));
+}
+
 public void Database_OnClientDataRecived(Database db, DBResultSet results, const char[] error, any data)
 {
 	int client = GetClientOfUserId(data);
@@ -139,7 +145,7 @@ public void Database_OnClientDataRecived(Database db, DBResultSet results, const
 					int iSkinDefIndex = results.FetchInt(2);
 					bool bWearable = view_as<bool>(results.FetchInt(9));
 					bool bActive = view_as<bool>(results.FetchInt(10));
-					if(iDefIndex > 0)
+					if(iDefIndex > 0 && !IsWeaponForbiddenByCvar(iDefIndex))
 					{
 						if(bWearable == true)
 						{
@@ -183,6 +189,10 @@ public void Database_SaveClientData(int client)
 {
 	if(g_hDatabase != null)
 	{
+		if(g_ArrayModifiedWeapons[client].Length < 1)
+		{
+			return;
+		}
 		char szSteamId[64];
 		GetClientAuthId(client, AuthId_SteamID64, szSteamId, sizeof(szSteamId));
 		for(int iWeaponNum = 0; iWeaponNum < g_ArrayModifiedWeapons[client].Length; iWeaponNum++)

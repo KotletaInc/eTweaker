@@ -374,7 +374,7 @@ stock void BuildKnivesMenu(int client, int position = 0)
             {
                 CSGOItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
                 int iWepDef = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeapon);
-                if((!g_cvAllowKnifeBareHands.BoolValue && iWepDef == 69) || (!g_cvAllowKnifeAxe.BoolValue && iWepDef == 75) || (!g_cvAllowKnifeHammer.BoolValue && iWepDef == 76) || (!g_cvAllowKnifeWrench.BoolValue && iWepDef == 78))
+                if(IsWeaponForbiddenByCvar(iWepDef))
                 {
                     continue;
                 }

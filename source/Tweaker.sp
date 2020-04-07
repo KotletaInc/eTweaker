@@ -10,6 +10,9 @@
 #pragma semicolon 1
 #pragma newdecls required
 
+#define AUTHOR "ESK0"
+#define VERSION "1.7"
+
 #include "files/globals.sp"
 #include "files/client.sp"
 #include "files/commands.sp"
@@ -25,8 +28,8 @@
 public Plugin myinfo =
 {
 	name = "e'Tweaker",
-	author = "ESK0",
-	version = "1.6.1",
+	author = AUTHOR,
+	version = VERSION,
 	description = "Tweaker",
 	url = "www.steamcommunity.com/id/esk0"
 };
@@ -183,18 +186,23 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
 	else if(convar == g_cvAllowKnifeBareHands)
 	{
 		g_cvAllowKnifeBareHands.SetInt(StringToInt(newValue));
+		RemoveForbiddenWeaponFromPlayers(69); //AXE Def. Index 69
+		
 	}
 	else if(convar == g_cvAllowKnifeAxe)
 	{
 		g_cvAllowKnifeAxe.SetInt(StringToInt(newValue));
+		RemoveForbiddenWeaponFromPlayers(75); //AXE Def. Index 75
 	}
 	else if(convar == g_cvAllowKnifeHammer)
 	{
 		g_cvAllowKnifeHammer.SetInt(StringToInt(newValue));
+		RemoveForbiddenWeaponFromPlayers(76); //AXE Def. Index 76
 	}
 	else if(convar == g_cvAllowKnifeWrench)
 	{
 		g_cvAllowKnifeWrench.SetInt(StringToInt(newValue));
+		RemoveForbiddenWeaponFromPlayers(78); //AXE Def. Index 78
 	}
 }
 
@@ -265,7 +273,7 @@ public void OnClientPostAdminCheck(int client)
 
 public void OnClientDisconnect(int client)
 {
-	if(IsClientInGame(client) && !IsFakeClient(client))
+	if(IsValidClient(client))
 	{
 		Database_SaveClientData(client);
 	}
