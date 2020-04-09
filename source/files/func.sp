@@ -19,7 +19,7 @@ public void UpdateClientWeapon(int client, int iWeapon)
 						float fWear = g_ArrayStoredWeaponsWear[client].Get(iWeaponNum);
 						if(fWear > 0.0)
 						{
-						SetEntPropFloat(iWeapon, Prop_Send, "m_flFallbackWear", fWear);
+							SetEntPropFloat(iWeapon, Prop_Send, "m_flFallbackWear", (fWear / 100000));
 						}
 					}
 					if(g_ArrayStoredWeaponsPattern[client].Length >= iWeaponNum)
@@ -50,7 +50,7 @@ public void UpdateClientWeapon(int client, int iWeapon)
 				}
 			}  
 
-			if(g_ArrayStoredWeaponsNametag[client].Length >= iWeaponNum)
+			if(g_ArrayStoredWeaponsNametag[client].Length >= iWeaponNum && g_cvAllowNametags.BoolValue)
 			{
 				char szNameTag[1024];
 				g_ArrayStoredWeaponsNametag[client].GetString(iWeaponNum, szNameTag, sizeof(szNameTag));
@@ -62,6 +62,7 @@ public void UpdateClientWeapon(int client, int iWeapon)
 		}
 	}
 }
+
 stock bool IsStringNumeric(const char[] szText)
 {
 	int iLen = strlen(szText);
@@ -101,6 +102,53 @@ stock int FindNetVar(const char[] szProp)
 	}
 	return 0;
 }
+
+public void GetKnifeDisplayName(int iDefIndex, char[] buffer, int len)
+{
+    switch(iDefIndex)
+    {
+        case 0: strcopy(buffer, len, "Knife");
+        case 42: strcopy(buffer, len, "CT Knife");
+        case 59: strcopy(buffer, len, "T Knife");
+        case 51: strcopy(buffer, len, "Golden Knife");
+        default: CSGOItems_GetWeaponDisplayNameByDefIndex(iDefIndex, buffer, len);
+    }
+}
+
+public void GetWeaponWear(int client, int iWeaponNum, char[] buffer, int len)
+{
+    float fWepWear = g_ArrayStoredWeaponsWear[client].Get(iWeaponNum);
+    switch(fWepWear)
+    {
+        case 1.0: strcopy(buffer, len, "Pristine");
+        case 1000.0: strcopy(buffer, len, "Factory New");
+        case 8000.0: strcopy(buffer, len, "Minimal Wear");
+        case 16000.0: strcopy(buffer, len, "Field-Tested");
+        case 30000.0: strcopy(buffer, len, "Well-Worn");
+        case 55000.0: strcopy(buffer, len, "Battle-Scarred");
+        case 110000.0: strcopy(buffer, len, "Garbage");
+    }
+}
+
+public void GetWeaponQuality(int client, int iWeaponNum, char[] buffer, int len)
+{
+    int iWepQuality = g_ArrayStoredWeaponsQuality[client].Get(iWeaponNum);
+    switch(iWepQuality)
+    {
+        case 0: strcopy(buffer, len, "Normal");
+        case 1: strcopy(buffer, len, "Genuine");
+        case 2: strcopy(buffer, len, "Vintage");
+        case 3: strcopy(buffer, len, "Unusual");
+        case 5: strcopy(buffer, len, "Community");
+        case 6: strcopy(buffer, len, "Valve");
+        case 7: strcopy(buffer, len, "Prototype");
+        case 8: strcopy(buffer, len, "Customized");
+        case 9: strcopy(buffer, len, "StatTrack™");
+        case 10: strcopy(buffer, len, "Completed");
+        case 12: strcopy(buffer, len, "Souvenir");
+    }
+}
+
 public void AttachGloveSkin(int client, int iGloveDef, int iSkinDef)
 {
 	int iGloves = CreateEntityByName("wearable_item");
@@ -134,6 +182,20 @@ public void AttachGloveSkin(int client, int iGloveDef, int iSkinDef)
 		//SDKHook(iGloves, SDKHook_SetTransmit, EventSDK_SetTransmit);
 	}
 }
+
+public bool IsValidWear(float wear)
+{
+	int found = 0;
+	for(int i = 0; i <= 6; i++)
+	{
+		if(wear == g_fWeaponWearLevel[i])
+		{
+			found++;
+		}
+	}
+	return (found > 0 ? true : false);
+}
+
 public Action EventSDK_SetTransmit(int iGloves, int client)
 {
 	if(IsValidClient(client))

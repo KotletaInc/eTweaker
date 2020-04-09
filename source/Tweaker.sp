@@ -11,7 +11,8 @@
 #pragma newdecls required
 
 #define AUTHOR "ESK0"
-#define VERSION "1.7"
+#define VERSION "1.8"
+#define TAG_NOCLR "[eTweaker]"
 
 #include "files/globals.sp"
 #include "files/client.sp"
@@ -27,7 +28,7 @@
 
 public Plugin myinfo =
 {
-	name = "e'Tweaker",
+	name = "eTweaker",
 	author = AUTHOR,
 	version = VERSION,
 	description = "Tweaker",
@@ -118,9 +119,6 @@ public void OnPluginStart()
 
 	g_cvAllowGlovesRandomSkin = CreateConVar("etweaker_allow_gloves_randomskin", "1", "Allow 'Random skin' selection in 'Gloves' menu", FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	g_cvAllowGlovesRandomSkin.AddChangeHook(OnConVarChanged);
-
-	g_cvAllowGlovesRandomSkin = CreateConVar("etweaker_allow_gloves_randomskin", "1", "Allow 'Random skin' selection in 'Gloves' menu", FCVAR_PROTECTED, true, 0.0, true, 1.0);
-	g_cvAllowGlovesRandomSkin.AddChangeHook(OnConVarChanged);
 	
 	g_cvAllowCurrentWeaponRandomSkin = CreateConVar("etweaker_allow_currentweapon_randomskin", "1", "Allow 'Random skin' selection in 'Current Weapon' menu", FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	g_cvAllowCurrentWeaponRandomSkin.AddChangeHook(OnConVarChanged);
@@ -139,6 +137,14 @@ public void OnPluginStart()
 
 	g_cvAllowKnifeWrench = CreateConVar("etweaker_allow_knife_wrench", "1", "Allow 'Wrench' knife in 'Knives' menu", FCVAR_PROTECTED, true, 0.0, true, 1.0);
 	g_cvAllowKnifeWrench.AddChangeHook(OnConVarChanged);
+
+	g_cvHideDisabledSelections = CreateConVar("etweaker_hide_disabled_selections", "0", "Hide disabled selections from menu", FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	g_cvHideDisabledSelections.AddChangeHook(OnConVarChanged);
+
+	g_cvAllowNametags = CreateConVar("etweaker_allow_nametags", "1", "Allow 'nametag' feature", FCVAR_PROTECTED, true, 0.0, true, 1.0);
+	g_cvAllowNametags.AddChangeHook(OnConVarChanged);
+
+	
 	
 	
 	Database.Connect(Database_Connect, "tweaker");
@@ -186,8 +192,7 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
 	else if(convar == g_cvAllowKnifeBareHands)
 	{
 		g_cvAllowKnifeBareHands.SetInt(StringToInt(newValue));
-		RemoveForbiddenWeaponFromPlayers(69); //AXE Def. Index 69
-		
+		RemoveForbiddenWeaponFromPlayers(69); //AXE Def. Index 69	
 	}
 	else if(convar == g_cvAllowKnifeAxe)
 	{
@@ -204,6 +209,17 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
 		g_cvAllowKnifeWrench.SetInt(StringToInt(newValue));
 		RemoveForbiddenWeaponFromPlayers(78); //AXE Def. Index 78
 	}
+	else if(convar == g_cvHideDisabledSelections)
+	{
+		g_cvHideDisabledSelections.SetInt(StringToInt(newValue));
+	}
+	else if(convar == g_cvAllowNametags)
+	{
+		g_cvAllowNametags.SetInt(StringToInt(newValue));
+	}
+	
+
+	
 }
 
 public void CSGOItems_OnItemsSynced()
@@ -217,6 +233,36 @@ public void CSGOItems_OnItemsSynced()
 
 public void BuildSkinsArrayList()
 {
+	KeyValues kv = new KeyValues("eTweaker");
+	char szFilePath[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, szFilePath, sizeof(szFilePath), "/configs/eTweaker.cfg");
+	if(!FileExists(szFilePath))
+	{
+		SetFailState("%s Unable to find eTweaker.cfg file in %s", TAG_NOCLR , szFilePath);
+		return;
+	}
+
+	if(!kv.ImportFromFile(szFilePath))
+	{
+		SetFailState("%s Unable to import config file", TAG_NOCLR);
+		return;
+	}
+
+	if(!kv.JumpToKey("Phases"))
+	{
+		SetFailState("%s Unable to jump to 'Phases' section", TAG_NOCLR);
+		return;
+	}
+
+	if(g_SMPhaseList != null)
+	{
+		delete g_SMPhaseList;
+	}
+
+	g_SMPhaseList = new StringMap();
+	char szDefIndex[16];
+	char szPhaseName[32];
+
 	for(int iWeapon = 0; iWeapon < g_iWeaponCount; iWeapon++)
 	{
 		if(g_ArrayWeapons[iWeapon] == null)
@@ -235,7 +281,14 @@ public void BuildSkinsArrayList()
 				int iSkinDefIndex = CSGOItems_GetSkinDefIndexBySkinNum(iSkin);
 				if(iSkinDefIndex > 0 && iSkinDefIndex < 10000)
 				{
+
 					g_ArrayWeapons[iWeapon].Push(iSkinDefIndex);
+					IntToString(iSkinDefIndex, szDefIndex, sizeof(szDefIndex));
+					kv.GetString(szDefIndex, szPhaseName, sizeof(szPhaseName));
+					if(strlen(szPhaseName) > 0)
+					{
+						g_SMPhaseList.SetString(szDefIndex, szPhaseName);
+					}
 				}
 			}
 		}
@@ -261,6 +314,7 @@ public void BuildSkinsArrayList()
 		}
 	}
 	g_bDataFullySynced = true;
+	delete kv;
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -293,6 +347,7 @@ public void OnClientPutInServer(int client)
 	g_iPrevWeapon[client] = INVALID_ENT_REFERENCE;
 	g_iStoredKnife[client] = 0;
 	g_bChangedGloves[client] = false;
+	g_bIsLookingAtCurrentSettings[client] = false;
 	g_bHasGloves[client] = false;
 	g_iUserDbId[client] = -1;
 	Format(g_szStoredGloves[client], sizeof(g_szStoredGloves[]), "");
@@ -301,7 +356,7 @@ public void OnClientPutInServer(int client)
 }
 
 public Action Event_OnRoundStart(Event event, const char[] name, bool dontBroadcast)
-{
+{ 
 	g_bIsRoundEnd = false;
 	return Plugin_Continue;
 }
@@ -414,7 +469,7 @@ public void ResetClientData(int client)
 	{
 		g_ArrayModifiedWeapons[client].Push(0);
 		g_ArrayStoredWeaponsPaint[client].Push(1);
-		g_ArrayStoredWeaponsWear[client].Push(0.00001);
+		g_ArrayStoredWeaponsWear[client].Push(1.0);
 		g_ArrayStoredWeaponsPattern[client].Push(0);
 		g_ArrayStoredWeaponsQuality[client].Push(0);
 		g_ArrayStoredWeaponsNametag[client].PushString("");

@@ -27,6 +27,11 @@ public void SDK_OnWeaponSwitchPost(int client, int weapon)
         {
             ShowAllWeaponsPaints(client, iWeaponNum);
         }
+        else if(g_bIsLookingAtCurrentSettings[client])
+        {
+            BuildInformationMenuForWeapon(client, iWeaponNum);
+            g_bIsLookingAtCurrentSettings[client] = true;
+        }
         else if(g_bIsChangingQuality[client])
         {
             BuildWeaponQualityMenu(client);

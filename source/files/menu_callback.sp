@@ -5,8 +5,7 @@ public int h_mainmenu(Menu menu, MenuAction action, int client, int index)
         if(action == MenuAction_Select)
         {
             char szMenuItem[12];
-            char szMenuDisplay[32];
-            menu.GetItem(index, szMenuItem, sizeof(szMenuItem), _,szMenuDisplay, sizeof(szMenuDisplay));
+            menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
             if(StrEqual(szMenuItem, "paints", false))
             {
                 BuildWeaponPaintsMenu(client);
@@ -31,13 +30,170 @@ public int h_mainmenu(Menu menu, MenuAction action, int client, int index)
             {
                 BuildKnivesMenu(client);
             }
+            else if(StrEqual(szMenuItem, "info", false))
+            {
+                BuildInformationsMenu(client);
+            }
         }
         if(action == MenuAction_End)
         {
-        delete menu;
+            delete menu;
         }
     }
 }
+
+public int h_informationsmenubyslot(Menu menu, MenuAction action, int client, int index)
+{
+    if(IsValidClient(client))
+    {
+        if(action == MenuAction_Select)
+        {
+            char szMenuItem[12];
+            menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
+            int iWeaponNum = StringToInt(szMenuItem);
+            BuildInformationMenuForWeapon(client, iWeaponNum, false);
+        }
+        if(action == MenuAction_End)
+        {
+            delete menu;
+        }
+        if(action == MenuAction_Cancel)
+        {
+            if(index == MenuCancel_ExitBack)
+            {
+                BuildInformationsMenu(client);
+            }
+        }
+
+    }
+}
+
+public int h_informationsmenuforcurrentweapon(Menu menu, MenuAction action, int client, int index)
+{
+    if(IsValidClient(client))
+    {
+        if(action == MenuAction_Select)
+        {
+            char szMenuItem[12];
+            menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
+            if(StrEqual(szMenuItem, "back", false))
+            {
+                g_bIsLookingAtCurrentSettings[client] = false;
+                BuildInformationsMenu(client);
+            }
+        }
+        if(action == MenuAction_End)
+        {
+            g_bIsLookingAtCurrentSettings[client] = false;
+            delete menu;
+        }
+        if(action == MenuAction_Cancel)
+        {
+            g_bIsLookingAtCurrentSettings[client] = false;
+        }
+    }
+}
+
+public int h_informationsmenuforprimaryweapon(Menu menu, MenuAction action, int client, int index)
+{
+    if(IsValidClient(client))
+    {
+        if(action == MenuAction_Select)
+        {
+            char szMenuItem[12];
+            menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
+            if(StrEqual(szMenuItem, "back", false))
+            {
+                BuildInformationMenuBySlot(client, CS_SLOT_PRIMARY);
+            }
+        }
+        if(action == MenuAction_End)
+        {
+            delete menu;
+        }
+    }
+}
+
+public int h_informationsmenuforsecondaryweapon(Menu menu, MenuAction action, int client, int index)
+{
+    if(IsValidClient(client))
+    {
+        if(action == MenuAction_Select)
+        {
+            char szMenuItem[12];
+            menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
+            if(StrEqual(szMenuItem, "back", false))
+            {
+                BuildInformationMenuBySlot(client, CS_SLOT_SECONDARY);
+            }
+        }
+        if(action == MenuAction_End)
+        {
+            delete menu;
+        }
+    }
+}
+
+public int h_informationsmenuforknife(Menu menu, MenuAction action, int client, int index)
+{
+    if(IsValidClient(client))
+    {
+        if(action == MenuAction_Select)
+        {
+            char szMenuItem[12];
+            menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
+            if(StrEqual(szMenuItem, "back", false))
+            {
+                BuildInformationMenuBySlot(client, CS_SLOT_KNIFE);
+            }
+        }
+        if(action == MenuAction_End)
+        {
+            delete menu;
+        }
+    }
+}
+
+public int h_informationsmenu(Menu menu, MenuAction action, int client, int index)
+{
+    if(IsValidClient(client))
+    {
+        if(action == MenuAction_Select)
+        {
+            char szMenuItem[12];
+            menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
+            if(StrEqual(szMenuItem, "current", false))
+            {
+                g_bIsLookingAtCurrentSettings[client] = true;
+                BuildInformationMenuForWeapon(client, CSGOItems_GetActiveWeaponNum(client));
+            }
+            else if(StrEqual(szMenuItem, "primary", false))
+            {
+                BuildInformationMenuBySlot(client, CS_SLOT_PRIMARY);
+            }
+            else if(StrEqual(szMenuItem, "secondary", false))
+            {
+                BuildInformationMenuBySlot(client, CS_SLOT_SECONDARY);
+            }
+            else if(StrEqual(szMenuItem, "knives", false))
+            {
+                BuildInformationMenuBySlot(client, CS_SLOT_KNIFE);
+            }
+        }
+        if(action == MenuAction_End)
+        {
+            delete menu;
+        }
+        if(action == MenuAction_Cancel)
+        {
+            if(index == MenuCancel_ExitBack)
+            {
+                BuildMainMenu(client);
+            }
+        }
+    }
+}
+
 public int h_weaponpaintsmenu(Menu menu, MenuAction action, int client, int index)
 {
     if(IsValidClient(client))

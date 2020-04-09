@@ -18,7 +18,7 @@ public void Database_CreateTables()
 		Format(szBuffer, sizeof(szBuffer), "CREATE TABLE IF NOT EXISTS `tweaker_users`(`id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,`name` VARCHAR(255) NOT NULL ,`steamid` VARCHAR(18) NOT NULL ,`created_at` TIMESTAMP NULL ,`updated_at` TIMESTAMP NULL ,PRIMARY KEY (`id`), UNIQUE(`steamid`)) ENGINE = InnoDB;");
 		g_hDatabase.Query(Database_CreatedTables, szBuffer);
 
-		Format(szBuffer, sizeof(szBuffer), "CREATE TABLE IF NOT EXISTS `tweaker_user_items`(`fk_user` INT UNSIGNED NOT NULL,`fk_item` INT UNSIGNED NOT NULL,`fk_skin` INT UNSIGNED NULL DEFAULT 0,`nametag` VARCHAR(1024) NOT NULL DEFAULT '',`stattrack` INT UNSIGNED NOT NULL DEFAULT 0,`stattrack_enabled` BOOLEAN NOT NULL DEFAULT FALSE,`wear` FLOAT NOT NULL DEFAULT  0.00001,`quality` INT UNSIGNED NOT NULL DEFAULT 0,`pattern` INT UNSIGNED NOT NULL DEFAULT 0,`is_wearable` BOOLEAN NOT NULL DEFAULT FALSE,`is_active` BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (`fk_user`, `fk_item`),UNIQUE INDEX `UNIQUE1` (`fk_user` ASC, `fk_item` ASC, `fk_skin` ASC)) ENGINE = InnoDB;");
+		Format(szBuffer, sizeof(szBuffer), "CREATE TABLE IF NOT EXISTS `tweaker_user_items`(`fk_user` INT UNSIGNED NOT NULL,`fk_item` INT UNSIGNED NOT NULL,`fk_skin` INT UNSIGNED NULL DEFAULT 0,`nametag` VARCHAR(1024) NOT NULL DEFAULT '',`stattrack` INT UNSIGNED NOT NULL DEFAULT 0,`stattrack_enabled` BOOLEAN NOT NULL DEFAULT FALSE,`wear` FLOAT NOT NULL DEFAULT  1.0,`quality` INT UNSIGNED NOT NULL DEFAULT 0,`pattern` INT UNSIGNED NOT NULL DEFAULT 0,`is_wearable` BOOLEAN NOT NULL DEFAULT FALSE,`is_active` BOOLEAN NOT NULL DEFAULT FALSE, PRIMARY KEY (`fk_user`, `fk_item`),UNIQUE INDEX `UNIQUE1` (`fk_user` ASC, `fk_item` ASC, `fk_skin` ASC)) ENGINE = InnoDB;");
 		g_hDatabase.Query(Database_CreatedTables, szBuffer);
 	}
 }
@@ -164,6 +164,10 @@ public void Database_OnClientDataRecived(Database db, DBResultSet results, const
 							float fWear = results.FetchFloat(6);
 							int iQuality = results.FetchInt(7);
 							int iPattern = results.FetchInt(8);
+							if(!IsValidWear(fWear))
+							{
+								fWear = g_fWeaponWearLevel[0];
+							}
 							g_ArrayStoredWeaponsQuality[client].Set(iWeaponNum, iQuality);
 							g_ArrayStoredWeaponsPattern[client].Set(iWeaponNum, iPattern);
 							g_ArrayStoredWeaponsNametag[client].SetString(iWeaponNum, szNameTag);
