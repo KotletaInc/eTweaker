@@ -1,13 +1,28 @@
 public Action SDK_OnWeaponEquip(int client, int weapon)
 {
-    if(IsValidClient(client, true) && CSGOItems_IsValidWeapon(weapon))
+    if(!IsValidClient(client, true))
     {
-        int iPrevOwner = GetEntProp(weapon, Prop_Send, "m_hPrevOwner");
-        if(iPrevOwner > 0)
-        {
-            return Plugin_Continue;
-        }
-        UpdateClientWeapon(client, weapon);
+        return Plugin_Continue;
+    }
+
+    if(!CSGOItems_IsValidWeapon(weapon))
+    {
+        return Plugin_Continue;
+    }
+
+    int iPrevOwner = GetEntProp(weapon, Prop_Send, "m_hPrevOwner");
+    if(iPrevOwner > 0)
+    {
+        return Plugin_Continue;
+    }
+
+    if(IsMapWeapon(weapon, true))
+    {
+        DataPack datapack = new DataPack();
+        datapack.WriteCell(client);
+        datapack.WriteCell(weapon);
+
+        CreateTimer(0.1, Timer_MapWeaponEquipped, datapack);
     }
     return Plugin_Continue;
 }
@@ -16,6 +31,10 @@ public void SDK_OnWeaponSwitchPost(int client, int weapon)
     if(IsValidClient(client, true) && IsValidEntity(weapon))
     {
         int iWeaponNum = CSGOItems_GetWeaponNumByWeapon(weapon);
+        if(iWeaponNum == -1)
+        {
+            return;
+        }
         if(g_bIsChangingSkin[client])
         {
             if(-1 < iWeaponNum <= CSGOItems_GetWeaponCount())

@@ -1,13 +1,40 @@
-    public Action WeaponCanUsePre(int client, int iEnt, bool& CanUse)
+public void SetPlayerModelPost(int client, const char[] szModel)
+{
+    if(IsValidClient(client, true))
     {
-        int iDefIndex = CSGOItems_GetWeaponDefIndexByWeapon(iEnt);
-        if (CSGOItems_IsDefIndexKnife(iDefIndex))
-        {
-            CanUse = true;
-            return Plugin_Changed;
-        }
-        return Plugin_Continue;
+        if(strlen(g_szStoredGloves[client]) > 0)
+		{
+			char szItemEx[2][32];
+			if(ExplodeString(g_szStoredGloves[client], ";",szItemEx, sizeof(szItemEx), sizeof(szItemEx[])) == 2)
+			{
+				int iGloveDef = StringToInt(szItemEx[0]);
+				int iSkinDef = StringToInt(szItemEx[1]);
+				AttachGloveSkin(client, iGloveDef, iSkinDef);
+			}
+		}
     }
+}
+public Action WeaponCanUsePre(int client, int iEnt, bool& CanUse)
+{
+    int iDefIndex = CSGOItems_GetWeaponDefIndexByWeapon(iEnt);
+    if (CSGOItems_IsDefIndexKnife(iDefIndex))
+    {
+        CanUse = true;
+        return Plugin_Changed;
+    }
+    return Plugin_Continue;
+}
+public void GiveNamedItemPost(int client, const char[] classname, const CEconItemView item, int entity, bool OriginIsNULL, const float Origin[3])
+{
+    if(IsValidClient(client, true) && CSGOItems_IsValidWeapon(entity))
+    {
+        int iPrevOwner = GetEntProp(entity, Prop_Send, "m_hPrevOwner");
+        if(iPrevOwner == -1)
+        {
+            UpdateClientWeapon(client, entity);
+        }
+    }
+}
 public Action GiveNamedItemPre(int client, char szClassname[64], CEconItemView &Item, bool &IgnoredCEconItemView, bool &OriginIsNULL, float Origin[3])
 {
     if(g_iStoredKnife[client] != 0)

@@ -5,6 +5,10 @@ public void UpdateClientWeapon(int client, int iWeapon)
 		if(iWeapon != INVALID_ENT_REFERENCE)
 		{
 			int iWeaponNum = CSGOItems_GetWeaponNumByWeapon(iWeapon);
+			if(iWeaponNum == -1)
+			{
+				return;
+			}
 			SetEntProp(iWeapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
 			if(g_ArrayStoredWeaponsPaint[client].Length >= iWeaponNum)
 			{
@@ -279,4 +283,54 @@ stock int FindClientBySteamID64(const char[] szSteamID64)
 		}
 	}
 	return -1;
+}
+
+stock bool IsMapWeapon(int weapon, bool bRemove = false)
+{
+	if(g_arMapWeapons == null)
+	{
+		return false;
+	}
+	for(int i = 0; i < g_arMapWeapons.Length; i++)
+	{
+		if(g_arMapWeapons.Get(i) != weapon)
+		{
+			continue;
+		}
+
+		if(bRemove)
+		{
+			g_arMapWeapons.Erase(i);
+		}
+		return true;
+	}
+	return false;
+}
+
+public Action Timer_MapWeaponEquipped(Handle timer, DataPack datapack)
+{
+	ResetPack(datapack);
+	int client = ReadPackCell(datapack);
+	int weapon = ReadPackCell(datapack);
+
+
+	if(!IsValidClient(client, true))
+	{
+		return Plugin_Continue;
+	}
+
+	if(!CSGOItems_IsValidWeapon(weapon))
+	{
+		return Plugin_Continue;
+	}
+
+	int iWeaponSlot = CSGOItems_GetWeaponSlotByWeapon(weapon);
+	if (iWeaponSlot == CS_SLOT_GRENADE || iWeaponSlot == CS_SLOT_C4)
+	{
+		return Plugin_Continue;
+	}
+
+	CSGOItems_RespawnWeapon(client, weapon);
+	UpdateClientWeapon(client, weapon);
+	return Plugin_Stop;
 }

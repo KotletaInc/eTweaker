@@ -251,7 +251,6 @@ stock void ShowAllWeaponsPaints(int client, int iWeaponNum, int position = 0)
         if(g_ArrayWeapons[iWeaponNum].Length > 0)
         {
             char szSkinDisplayName[32];
-            char szMenuKey[12];
             int iCurrentSkinDef = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
             int iRandomSkin = GetRandomInt(0, g_iSkinCount - 1);
             int iRandomSkinDef = CSGOItems_GetSkinDefIndexBySkinNum(iRandomSkin);
@@ -273,7 +272,7 @@ stock void ShowAllWeaponsPaints(int client, int iWeaponNum, int position = 0)
                 {
                     Format(szSkinDisplayName, sizeof(szSkinDisplayName), "%s %s",szSkinDisplayName, szKnifePhase);
                 }
-                menu.AddItem(szMenuKey, szSkinDisplayName, iCurrentSkinDef == iSkinDef?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
+                menu.AddItem(szSkinDef, szSkinDisplayName, iCurrentSkinDef == iSkinDef?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
             }
         }
         else

@@ -63,3 +63,5 @@ ConVar g_cvAllowKnifeHammer;
 ConVar g_cvAllowKnifeWrench;
 ConVar g_cvAllowNametags;
 ConVar g_cvHideDisabledSelections;
+
+ArrayList g_arMapWeapons;

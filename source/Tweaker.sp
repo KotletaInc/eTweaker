@@ -11,7 +11,7 @@
 #pragma newdecls required
 
 #define AUTHOR "ESK0"
-#define VERSION "1.8"
+#define VERSION "1.9"
 #define TAG_NOCLR "[eTweaker]"
 
 #include "files/globals.sp"
@@ -75,7 +75,9 @@ public void OnPluginStart()
 	HookEvent("player_spawn", Event_OnPlayerSpawn);
 
 	PTaH(PTaH_GiveNamedItemPre, Hook, GiveNamedItemPre);
+	PTaH(PTaH_GiveNamedItemPost, Hook, GiveNamedItemPost);
 	PTaH(PTaH_WeaponCanUsePre, Hook, WeaponCanUsePre);
+	PTaH(PTaH_SetPlayerModelPost, Hook, SetPlayerModelPost);
 
 	g_iNameTagOffset = FindNetVar("m_szCustomName");
 
@@ -333,6 +335,17 @@ public void OnClientDisconnect(int client)
 	}
 }
 
+public void OnMapStart()
+{
+	if(g_arMapWeapons != null)
+	{
+		delete g_arMapWeapons;
+		g_arMapWeapons = null;
+	}
+
+	g_arMapWeapons = new ArrayList();
+}
+
 public void OnClientPutInServer(int client)
 {
 	g_bIsChangingPatternValue[client] = false;
@@ -351,13 +364,46 @@ public void OnClientPutInServer(int client)
 	g_bHasGloves[client] = false;
 	g_iUserDbId[client] = -1;
 	Format(g_szStoredGloves[client], sizeof(g_szStoredGloves[]), "");
-	SDKHook(client, SDKHook_WeaponEquip, SDK_OnWeaponEquip);
 	SDKHook(client, SDKHook_WeaponSwitchPost, SDK_OnWeaponSwitchPost);
+	SDKHook(client, SDKHook_WeaponEquip, SDK_OnWeaponEquip);
 }
 
 public Action Event_OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 { 
 	g_bIsRoundEnd = false;
+
+	char szWeaponClassname[64];
+	for(int i = MaxClients; i < GetMaxEntities(); i++)
+	{
+		if(!IsValidEntity(i))
+		{
+			continue;
+		}
+
+		GetEntityClassname(i, szWeaponClassname, sizeof(szWeaponClassname));
+		if((StrContains(szWeaponClassname, "weapon_")) == -1)
+		{
+			continue;
+		}
+
+		if(GetEntProp(i, Prop_Send, "m_hOwnerEntity") != -1)
+		{
+			continue;
+		}
+		int iDefIndex;
+		if((iDefIndex = CSGOItems_GetWeaponDefIndexByClassName(szWeaponClassname)) == -1)
+		{
+			continue;
+		}
+
+		if(CSGOItems_IsDefIndexKnife(iDefIndex))
+		{
+			continue;
+		}
+
+		g_arMapWeapons.Push(i);
+	}
+
 	return Plugin_Continue;
 }
 
