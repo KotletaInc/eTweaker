@@ -2,7 +2,7 @@
 #include <sdktools>
 #include <sdkhooks>
 
-#include <csgoitems>
+#include <eItems>
 #include <cstrike>
 #include <ptah>
 #include <tweaker>
@@ -11,7 +11,7 @@
 #pragma newdecls required
 
 #define AUTHOR "ESK0"
-#define VERSION "1.9"
+#define VERSION "2.0"
 #define TAG_NOCLR "[eTweaker]"
 
 #include "files/globals.sp"
@@ -50,13 +50,13 @@ public void OnPluginStart()
 
 	if(g_bLateLoaded)
 	{
-		if(CSGOItems_AreItemsSynced())
+		if(eItems_AreItemsSynced())
 		{
-			CSGOItems_OnItemsSynced();
+			eItems_OnItemsSynced();
 		}
-		else if(!CSGOItems_AreItemsSyncing())
+		else if(!eItems_AreItemsSyncing())
 		{
-			CSGOItems_ReSync();
+			eItems_ReSync();
 		}
 	}
 
@@ -224,47 +224,17 @@ public void OnConVarChanged(ConVar convar, const char[] oldValue, const char[] n
 	
 }
 
-public void CSGOItems_OnItemsSynced()
+public void eItems_OnItemsSynced()
 {
-	g_iWeaponCount = CSGOItems_GetWeaponCount();
-	g_iSkinCount = CSGOItems_GetSkinCount();
-	g_iGloveCount = CSGOItems_GetGlovesCount();
+	g_iWeaponCount = eItems_GetWeaponCount();
+	g_iSkinCount = eItems_GetPaintsCount();
+	g_iGloveCount = eItems_GetGlovesCount();
 
 	BuildSkinsArrayList();
 }
 
 public void BuildSkinsArrayList()
 {
-	KeyValues kv = new KeyValues("eTweaker");
-	char szFilePath[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, szFilePath, sizeof(szFilePath), "/configs/eTweaker.cfg");
-	if(!FileExists(szFilePath))
-	{
-		SetFailState("%s Unable to find eTweaker.cfg file in %s", TAG_NOCLR , szFilePath);
-		return;
-	}
-
-	if(!kv.ImportFromFile(szFilePath))
-	{
-		SetFailState("%s Unable to import config file", TAG_NOCLR);
-		return;
-	}
-
-	if(!kv.JumpToKey("Phases"))
-	{
-		SetFailState("%s Unable to jump to 'Phases' section", TAG_NOCLR);
-		return;
-	}
-
-	if(g_SMPhaseList != null)
-	{
-		delete g_SMPhaseList;
-	}
-
-	g_SMPhaseList = new StringMap();
-	char szDefIndex[16];
-	char szPhaseName[32];
-
 	for(int iWeapon = 0; iWeapon < g_iWeaponCount; iWeapon++)
 	{
 		if(g_ArrayWeapons[iWeapon] == null)
@@ -275,22 +245,16 @@ public void BuildSkinsArrayList()
 		g_ArrayWeapons[iWeapon] = new ArrayList();
 		g_ArrayWeapons[iWeapon].Clear();
 
-		int iWeaponDefIndex = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeapon);
+		int iWeaponDefIndex = eItems_GetWeaponDefIndexByWeaponNum(iWeapon);
 		for(int iSkin = 0; iSkin < g_iSkinCount; iSkin++)
 		{
-			if(CSGOItems_IsNativeSkin(iSkin, iWeapon, ITEMTYPE_WEAPON) && iWeaponDefIndex != 42 && iWeaponDefIndex != 59)
+			if(eItems_IsNativeSkin(iSkin, iWeapon, ITEMTYPE_WEAPON) && iWeaponDefIndex != 42 && iWeaponDefIndex != 59)
 			{
-				int iSkinDefIndex = CSGOItems_GetSkinDefIndexBySkinNum(iSkin);
+				int iSkinDefIndex = eItems_GetSkinDefIndexBySkinNum(iSkin);
 				if(iSkinDefIndex > 0 && iSkinDefIndex < 10000)
 				{
 
 					g_ArrayWeapons[iWeapon].Push(iSkinDefIndex);
-					IntToString(iSkinDefIndex, szDefIndex, sizeof(szDefIndex));
-					kv.GetString(szDefIndex, szPhaseName, sizeof(szPhaseName));
-					if(strlen(szPhaseName) > 0)
-					{
-						g_SMPhaseList.SetString(szDefIndex, szPhaseName);
-					}
 				}
 			}
 		}
@@ -308,15 +272,14 @@ public void BuildSkinsArrayList()
 
 		for(int iGloveSkin = 0; iGloveSkin < g_iSkinCount; iGloveSkin++)
 		{
-			if(CSGOItems_IsSkinNumGloveApplicable(iGloveSkin) && CSGOItems_IsNativeSkin(iGloveSkin, iGlove,  ITEMTYPE_GLOVES))
+			if(eItems_IsSkinNumGloveApplicable(iGloveSkin) && eItems_IsNativeSkin(iGloveSkin, iGlove,  ITEMTYPE_GLOVES))
 			{
-				int iGloveDefIndex = CSGOItems_GetSkinDefIndexBySkinNum(iGloveSkin);
+				int iGloveDefIndex = eItems_GetSkinDefIndexBySkinNum(iGloveSkin);
 				g_ArrayGloves[iGlove].Push(iGloveDefIndex);
 			}
 		}
 	}
 	g_bDataFullySynced = true;
-	delete kv;
 }
 
 public void OnClientPostAdminCheck(int client)
@@ -391,12 +354,12 @@ public Action Event_OnRoundStart(Event event, const char[] name, bool dontBroadc
 			continue;
 		}
 		int iDefIndex;
-		if((iDefIndex = CSGOItems_GetWeaponDefIndexByClassName(szWeaponClassname)) == -1)
+		if((iDefIndex = eItems_GetWeaponDefIndexByClassName(szWeaponClassname)) == -1)
 		{
 			continue;
 		}
 
-		if(CSGOItems_IsDefIndexKnife(iDefIndex))
+		if(eItems_IsDefIndexKnife(iDefIndex))
 		{
 			continue;
 		}
@@ -446,7 +409,7 @@ public Action Event_OnPlayerDeath(Event event, const char[] name, bool dontBroad
 		char szWeaponClassname[32];
 		event.GetString("weapon", szWeapon, sizeof(szWeapon));
 		Format(szWeaponClassname, sizeof(szWeaponClassname), "weapon_%s", szWeapon);
-		int iWeaponNum = CSGOItems_GetWeaponNumByClassName(szWeaponClassname);
+		int iWeaponNum = eItems_GetWeaponNumByClassName(szWeaponClassname);
 		if(iWeaponNum >= 0 && iWeaponNum <= g_ArrayStoredWeaponsStatTrackEnabled[client].Length)
 		{
 			bool bStatTrackEnabled = view_as<bool>(g_ArrayStoredWeaponsStatTrackEnabled[client].Get(iWeaponNum));
@@ -531,8 +494,8 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 		{
 			if(StrEqual(sArgs, "cancel", false) == false)
 			{
-				int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-				int iActiveWeapon = CSGOItems_GetActiveWeapon(client);
+				int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+				int iActiveWeapon = eItems_GetActiveWeapon(client);
 				if(g_bIsChangingPatternValue[client])
 				{
 					if(IsStringNumeric(sArgs))
@@ -540,7 +503,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 						int pattern = StringToInt(sArgs);
 						g_ArrayStoredWeaponsPattern[client].Set(iActiveWeaponNum, pattern);
 						g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-						CSGOItems_RespawnWeapon(client, iActiveWeapon);
+						eItems_RespawnWeapon(client, iActiveWeapon);
 						g_bIsChangingPatternValue[client] = false;
 						if(g_bIsChangingPattern[client])
 						{
@@ -559,7 +522,7 @@ public Action OnClientSayCommand(int client, const char[] command, const char[] 
 					{
 						g_ArrayStoredWeaponsNametag[client].SetString(iActiveWeaponNum, sArgs);
 						g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-						CSGOItems_RespawnWeapon(client, iActiveWeapon);
+						eItems_RespawnWeapon(client, iActiveWeapon);
 						g_bIsChangingNametagValue[client] = false;
 						if(g_bIsChangingNametag[client])
 						{

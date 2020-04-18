@@ -5,7 +5,7 @@ public Action SDK_OnWeaponEquip(int client, int weapon)
         return Plugin_Continue;
     }
 
-    if(!CSGOItems_IsValidWeapon(weapon))
+    if(!eItems_IsValidWeapon(weapon))
     {
         return Plugin_Continue;
     }
@@ -30,14 +30,14 @@ public void SDK_OnWeaponSwitchPost(int client, int weapon)
 {
     if(IsValidClient(client, true) && IsValidEntity(weapon))
     {
-        int iWeaponNum = CSGOItems_GetWeaponNumByWeapon(weapon);
+        int iWeaponNum = eItems_GetWeaponNumByWeapon(weapon);
         if(iWeaponNum == -1)
         {
             return;
         }
         if(g_bIsChangingSkin[client])
         {
-            if(-1 < iWeaponNum <= CSGOItems_GetWeaponCount())
+            if(-1 < iWeaponNum <= eItems_GetWeaponCount())
             {
                 ShowActiveWeaponSkinsMenu(client, iWeaponNum);
             }
@@ -74,18 +74,18 @@ public void SDK_OnWeaponSwitchPost(int client, int weapon)
         if(g_iPrevWeapon[client] != INVALID_ENT_REFERENCE)
         {
             int iPrevWeapon = EntRefToEntIndex(g_iPrevWeapon[client]);
-            if(CSGOItems_IsValidWeapon(iPrevWeapon))
+            if(eItems_IsValidWeapon(iPrevWeapon))
             {
-                int iPrevWeaponNum = CSGOItems_GetWeaponNumByWeapon(iPrevWeapon);
+                int iPrevWeaponNum = eItems_GetWeaponNumByWeapon(iPrevWeapon);
                 bool bStatTrackEnabled = view_as<bool>(g_ArrayStoredWeaponsStatTrackEnabled[client].Get(iPrevWeaponNum));
                 if(bStatTrackEnabled)
                 {
-                    int iHasPrevWeapon = CSGOItems_FindWeaponByWeaponNum(client, iPrevWeaponNum);
+                    int iHasPrevWeapon = eItems_FindWeaponByWeaponNum(client, iPrevWeaponNum);
                     int iCurrentStatTrackKills = GetEntProp(iPrevWeapon, Prop_Send, "m_nFallbackStatTrak");
                     int iPendingStatTrackKills = g_ArrayStoredWeaponsStatTrackKills[client].Get(iPrevWeaponNum);
                     if(iPrevWeapon == iHasPrevWeapon && iCurrentStatTrackKills != iPendingStatTrackKills)
                     {
-                        CSGOItems_RespawnWeapon(client, iPrevWeapon);
+                        eItems_RespawnWeapon(client, iPrevWeapon);
                     }
                 }
             }

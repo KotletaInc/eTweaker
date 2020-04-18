@@ -165,7 +165,7 @@ public int h_informationsmenu(Menu menu, MenuAction action, int client, int inde
             if(StrEqual(szMenuItem, "current", false))
             {
                 g_bIsLookingAtCurrentSettings[client] = true;
-                BuildInformationMenuForWeapon(client, CSGOItems_GetActiveWeaponNum(client));
+                BuildInformationMenuForWeapon(client, eItems_GetActiveWeaponNum(client));
             }
             else if(StrEqual(szMenuItem, "primary", false))
             {
@@ -202,7 +202,7 @@ public int h_weaponpaintsmenu(Menu menu, MenuAction action, int client, int inde
         {
             char szMenuItem[12];
             menu.GetItem(index, szMenuItem, sizeof(szMenuItem));
-            int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
+            int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
             if(StrEqual(szMenuItem, "current", false))
             {
                 if(-1 < iActiveWeaponNum <= g_iWeaponCount)
@@ -257,12 +257,12 @@ public int h_activewepskins(Menu menu, MenuAction action, int client, int index)
                     char szSkinDef[12];
                     menu.GetItem(index, szSkinDef, sizeof(szSkinDef));
                     int iSkinDef = StringToInt(szSkinDef);
-                    int iActiveWeapon = CSGOItems_GetActiveWeapon(client);
-                    int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
+                    int iActiveWeapon = eItems_GetActiveWeapon(client);
+                    int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
 
                     g_ArrayStoredWeaponsPaint[client].Set(iActiveWeaponNum, iSkinDef);
                     g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-                    CSGOItems_RespawnWeapon(client, iActiveWeapon);
+                    eItems_RespawnWeapon(client, iActiveWeapon);
                     ShowActiveWeaponSkinsMenu(client, iActiveWeaponNum , GetMenuSelectionPosition());
                 }
                 else
@@ -303,11 +303,11 @@ public int h_allweaponspaintsmenu(Menu menu, MenuAction action, int client, int 
                     char szSkinDef[12];
                     menu.GetItem(index, szSkinDef, sizeof(szSkinDef));
                     int iSkinDef = StringToInt(szSkinDef);
-                    int iActiveWeapon = CSGOItems_GetActiveWeapon(client);
-                    int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
+                    int iActiveWeapon = eItems_GetActiveWeapon(client);
+                    int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
                     g_ArrayStoredWeaponsPaint[client].Set(iActiveWeaponNum, iSkinDef);
                     g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-                    CSGOItems_RespawnWeapon(client, iActiveWeapon);
+                    eItems_RespawnWeapon(client, iActiveWeapon);
                     ShowAllWeaponsPaints(client, iActiveWeaponNum , GetMenuSelectionPosition());
                 }
                 else
@@ -377,13 +377,13 @@ public int h_wepnumskins(Menu menu, MenuAction action, int client, int index)
                 ExplodeString(szBuffer, ";", szBufferEx, sizeof(szBufferEx), sizeof(szBufferEx[]));
                 int iSkinDef = StringToInt(szBufferEx[1]);
                 int iWepNum = StringToInt(szBufferEx[0]);
-                int iWeapon = CSGOItems_FindWeaponByWeaponNum(client, iWepNum);
+                int iWeapon = eItems_FindWeaponByWeaponNum(client, iWepNum);
                 g_ArrayStoredWeaponsPaint[client].Set(iWepNum, iSkinDef);
                 g_ArrayModifiedWeapons[client].Set(iWepNum, 1);
                 ShowWeaponNumSkinsMenu(client, iWepNum , GetMenuSelectionPosition());
-                if(IsPlayerAlive(client) && CSGOItems_IsValidWeapon(iWeapon))
+                if(IsPlayerAlive(client) && eItems_IsValidWeapon(iWeapon))
                 {
-                    CSGOItems_RespawnWeapon(client, iWeapon);
+                    eItems_RespawnWeapon(client, iWeapon);
                 }
             }
             else
@@ -454,8 +454,8 @@ public int h_weaponqualitymenu(Menu menu, MenuAction action, int client, int ind
         {
             char szItem[16];
             int iItem;
-            int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-            int iActiveWeapon = CSGOItems_GetActiveWeapon(client);
+            int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+            int iActiveWeapon = eItems_GetActiveWeapon(client);
             if(iActiveWeaponNum > -1)
             {
                 if(g_bIsRoundEnd == false)
@@ -464,7 +464,7 @@ public int h_weaponqualitymenu(Menu menu, MenuAction action, int client, int ind
                     iItem = StringToInt(szItem);
                     g_ArrayStoredWeaponsQuality[client].Set(iActiveWeaponNum, iItem);
                     g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-                    CSGOItems_RespawnWeapon(client, iActiveWeapon);
+                    eItems_RespawnWeapon(client, iActiveWeapon);
                     BuildWeaponQualityMenu(client, GetMenuSelectionPosition());
                 }
                 else
@@ -494,15 +494,15 @@ public int h_weaponwearmenu(Menu menu, MenuAction action, int client, int index)
     {
         if(action == MenuAction_Select)
         {
-            int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-            int iActiveWeapon = CSGOItems_GetActiveWeapon(client);
+            int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+            int iActiveWeapon = eItems_GetActiveWeapon(client);
             if(iActiveWeaponNum > -1)
             {
                 if(g_bIsRoundEnd == false)
                 {
                     g_ArrayStoredWeaponsWear[client].Set(iActiveWeaponNum, g_fWeaponWearLevel[index]);
                     g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-                    CSGOItems_RespawnWeapon(client, iActiveWeapon);
+                    eItems_RespawnWeapon(client, iActiveWeapon);
                     BuildWeaponWearMenu(client, GetMenuSelectionPosition());
                 }
                 else
@@ -533,8 +533,8 @@ public int h_weaponpatternmenu(Menu menu, MenuAction action, int client, int ind
         if(action == MenuAction_Select)
         {
             char szItem[16];
-            int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-            int iActiveWeapon = CSGOItems_GetActiveWeapon(client);
+            int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+            int iActiveWeapon = eItems_GetActiveWeapon(client);
             int pattern = g_ArrayStoredWeaponsPattern[client].Get(iActiveWeaponNum);
             if(iActiveWeaponNum > -1)
             {
@@ -568,7 +568,7 @@ public int h_weaponpatternmenu(Menu menu, MenuAction action, int client, int ind
                     }
                     g_ArrayStoredWeaponsPattern[client].Set(iActiveWeaponNum, pattern);
                     g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-                    CSGOItems_RespawnWeapon(client, iActiveWeapon);
+                    eItems_RespawnWeapon(client, iActiveWeapon);
                     BuilWeaponPatternMenu(client);
                 }
                 else
@@ -600,8 +600,8 @@ public int h_weaponnametagmenu(Menu menu, MenuAction action, int client, int ind
         {
             char szBuffer[12];
             menu.GetItem(index, szBuffer, sizeof(szBuffer));
-            int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-            int iActiveWeapon = CSGOItems_GetActiveWeapon(client);
+            int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+            int iActiveWeapon = eItems_GetActiveWeapon(client);
             if(iActiveWeaponNum > -1)
             {
                 if(g_bIsRoundEnd == false)
@@ -610,7 +610,7 @@ public int h_weaponnametagmenu(Menu menu, MenuAction action, int client, int ind
                     {
                         g_ArrayStoredWeaponsNametag[client].SetString(iActiveWeaponNum, "");
                         g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-                        CSGOItems_RespawnWeapon(client, iActiveWeapon);
+                        eItems_RespawnWeapon(client, iActiveWeapon);
                     }
                     else if(StrEqual(szBuffer, "add") == true)
                     {
@@ -647,8 +647,8 @@ public int h_weaponstattrackmenu(Menu menu, MenuAction action, int client, int i
         if(action == MenuAction_Select)
         {
             char szItem[16];
-            int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-            int iActiveWeapon = CSGOItems_GetActiveWeapon(client);
+            int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+            int iActiveWeapon = eItems_GetActiveWeapon(client);
             if(iActiveWeaponNum > -1)
             {
                 if(g_bIsRoundEnd == false)
@@ -659,7 +659,7 @@ public int h_weaponstattrackmenu(Menu menu, MenuAction action, int client, int i
                         bool bStatTrackEnabled = view_as<bool>(g_ArrayStoredWeaponsStatTrackEnabled[client].Get(iActiveWeaponNum));
                         g_ArrayStoredWeaponsStatTrackEnabled[client].Set(iActiveWeaponNum, bStatTrackEnabled?0:1);
                         g_ArrayModifiedWeapons[client].Set(iActiveWeaponNum, 1);
-                        CSGOItems_RespawnWeapon(client, iActiveWeapon);
+                        eItems_RespawnWeapon(client, iActiveWeapon);
                         BuildWeaponStatTrackMenu(client);
                     }
                 }
@@ -694,7 +694,7 @@ public int h_knivesmenu(Menu menu, MenuAction action, int client, int index)
             {
                 char szItem[32];
                 menu.GetItem(index, szItem, sizeof(szItem));
-                int iKnifeNum = CSGOItems_GetWeaponNumByDefIndex(g_iStoredKnife[client]);
+                int iKnifeNum = eItems_GetWeaponNumByDefIndex(g_iStoredKnife[client]);
                 if(g_iStoredKnife[client] > 0)
                 {
                     g_ArrayModifiedWeapons[client].Set(iKnifeNum, 1);
@@ -704,19 +704,23 @@ public int h_knivesmenu(Menu menu, MenuAction action, int client, int index)
                     g_iStoredKnife[client] = 0;
                     if(GetPlayerWeaponSlot(client, CS_SLOT_KNIFE) != -1)
                     {
-                        CSGOItems_GiveWeapon(client, "weapon_knife");
+                        //eItems_RemoveKnife(client);
+                        //PTaH_GivePlayerItem(client, "weapon_knife");
+                        eItems_GiveWeapon(client, "weapon_knife");
                     }
                 }
                 else
                 {
                     g_iStoredKnife[client] = StringToInt(szItem);
-                    iKnifeNum = CSGOItems_GetWeaponNumByDefIndex(g_iStoredKnife[client]);
+                    iKnifeNum = eItems_GetWeaponNumByDefIndex(g_iStoredKnife[client]);
                     g_ArrayModifiedWeapons[client].Set(iKnifeNum, 1);
                     if(GetPlayerWeaponSlot(client, CS_SLOT_KNIFE) != -1)
                     {
                         char szClassname[64];
-                        CSGOItems_GetWeaponClassNameByDefIndex(g_iStoredKnife[client], szClassname, sizeof(szClassname));
-                        CSGOItems_GiveWeapon(client, szClassname);
+                        eItems_GetWeaponClassNameByDefIndex(g_iStoredKnife[client], szClassname, sizeof(szClassname));
+                        //eItems_RemoveKnife(client);
+                        //PTaH_GivePlayerItem(client, szClassname);
+                        eItems_GiveWeapon(client, szClassname);
                     }
                 }
                 BuildKnivesMenu(client, GetMenuSelectionPosition());
@@ -759,7 +763,7 @@ public int h_glovemenu(Menu menu, MenuAction action, int client, int index)
             {
                 int iRandomGloveNum = GetRandomInt(3, g_iGloveCount - 1);                
                 int iRandomGloveSkin = GetRandomInt(0, g_ArrayGloves[iRandomGloveNum].Length - 1);
-                int iRandomGloveDef = CSGOItems_GetGlovesDefIndexByGlovesNum(iRandomGloveNum);
+                int iRandomGloveDef = eItems_GetGlovesDefIndexByGlovesNum(iRandomGloveNum);
                 int iRandomGloveSkinDef = g_ArrayGloves[iRandomGloveNum].Get(iRandomGloveSkin);
                 AttachGloveSkin(client, iRandomGloveDef, iRandomGloveSkinDef);
                 Format(g_szStoredGloves[client], sizeof(g_szStoredGloves[]), "%i;%i", iRandomGloveDef, iRandomGloveSkinDef);
@@ -796,7 +800,7 @@ public int h_gloveskinmenu(Menu menu, MenuAction action, int client, int index)
             ExplodeString(szItem, ";",szItemEx, sizeof(szItemEx), sizeof(szItemEx[]));
             int iGloveDef = StringToInt(szItemEx[0]);
             int iSkinDef = StringToInt(szItemEx[1]);
-            int iGloveNum = CSGOItems_GetGlovesNumByDefIndex(iGloveDef);
+            int iGloveNum = eItems_GetGlovesNumByDefIndex(iGloveDef);
             AttachGloveSkin(client, iGloveDef, iSkinDef);
             Format(g_szStoredGloves[client], sizeof(g_szStoredGloves[]), szItem);
             BuildGloveSkinsMenu(client, iGloveNum);

@@ -4,7 +4,7 @@ public void UpdateClientWeapon(int client, int iWeapon)
 	{
 		if(iWeapon != INVALID_ENT_REFERENCE)
 		{
-			int iWeaponNum = CSGOItems_GetWeaponNumByWeapon(iWeapon);
+			int iWeaponNum = eItems_GetWeaponNumByWeapon(iWeapon);
 			if(iWeaponNum == -1)
 			{
 				return;
@@ -115,7 +115,7 @@ public void GetKnifeDisplayName(int iDefIndex, char[] buffer, int len)
         case 42: strcopy(buffer, len, "CT Knife");
         case 59: strcopy(buffer, len, "T Knife");
         case 51: strcopy(buffer, len, "Golden Knife");
-        default: CSGOItems_GetWeaponDisplayNameByDefIndex(iDefIndex, buffer, len);
+        default: eItems_GetWeaponDisplayNameByDefIndex(iDefIndex, buffer, len);
     }
 }
 
@@ -159,7 +159,7 @@ public void AttachGloveSkin(int client, int iGloveDef, int iSkinDef)
 	if(iGloves != -1 && iSkinDef != -1)
 	{
 		char szGloveWorldModel[256];
-		CSGOItems_GetGlovesWorldModelByDefIndex(iGloveDef, szGloveWorldModel, sizeof(szGloveWorldModel));
+		eItems_GetGlovesWorldModelByDefIndex(iGloveDef, szGloveWorldModel, sizeof(szGloveWorldModel));
 		int iModelIndex = PrecacheModel(szGloveWorldModel, true);
 		SetEntProp(iGloves, Prop_Send, "m_bInitialized", 1);
 		SetEntProp(iGloves, Prop_Send, "m_iItemDefinitionIndex", iGloveDef);
@@ -239,10 +239,10 @@ public void RemoveForbiddenWeaponFromPlayers(int iKnifeDef)
 			continue;
 		}
 		g_iStoredKnife[client] = 0;
-		int iWeapon = CSGOItems_FindWeaponByDefIndex(client, iKnifeDef);
-		if(IsPlayerAlive(client) && CSGOItems_IsValidWeapon(iWeapon))
+		int iWeapon = eItems_FindWeaponByDefIndex(client, iKnifeDef);
+		if(IsPlayerAlive(client) && eItems_IsValidWeapon(iWeapon))
 		{
-			CSGOItems_GiveWeapon(client, "weapon_knife");
+			eItems_GiveWeapon(client, "weapon_knife");
 		}
 	}
 }
@@ -312,25 +312,25 @@ public Action Timer_MapWeaponEquipped(Handle timer, DataPack datapack)
 	ResetPack(datapack);
 	int client = ReadPackCell(datapack);
 	int weapon = ReadPackCell(datapack);
-
+	delete datapack;
 
 	if(!IsValidClient(client, true))
 	{
 		return Plugin_Continue;
 	}
 
-	if(!CSGOItems_IsValidWeapon(weapon))
+	if(!eItems_IsValidWeapon(weapon))
 	{
 		return Plugin_Continue;
 	}
 
-	int iWeaponSlot = CSGOItems_GetWeaponSlotByWeapon(weapon);
+	int iWeaponSlot = eItems_GetWeaponSlotByWeapon(weapon);
 	if (iWeaponSlot == CS_SLOT_GRENADE || iWeaponSlot == CS_SLOT_C4)
 	{
 		return Plugin_Continue;
 	}
 
-	CSGOItems_RespawnWeapon(client, weapon);
+	eItems_RespawnWeapon(client, weapon);
 	UpdateClientWeapon(client, weapon);
 	return Plugin_Stop;
 }

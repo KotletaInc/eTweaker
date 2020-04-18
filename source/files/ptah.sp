@@ -16,8 +16,8 @@ public void SetPlayerModelPost(int client, const char[] szModel)
 }
 public Action WeaponCanUsePre(int client, int iEnt, bool& CanUse)
 {
-    int iDefIndex = CSGOItems_GetWeaponDefIndexByWeapon(iEnt);
-    if (CSGOItems_IsDefIndexKnife(iDefIndex))
+    int iDefIndex = eItems_GetWeaponDefIndexByWeapon(iEnt);
+    if (eItems_IsDefIndexKnife(iDefIndex))
     {
         CanUse = true;
         return Plugin_Changed;
@@ -26,8 +26,14 @@ public Action WeaponCanUsePre(int client, int iEnt, bool& CanUse)
 }
 public void GiveNamedItemPost(int client, const char[] classname, const CEconItemView item, int entity, bool OriginIsNULL, const float Origin[3])
 {
-    if(IsValidClient(client, true) && CSGOItems_IsValidWeapon(entity))
+    if(IsValidClient(client, true) && eItems_IsValidWeapon(entity))
     {
+        int iDefIndex = eItems_GetWeaponDefIndexByClassName(classname);
+        if(eItems_IsDefIndexKnife(iDefIndex))
+        {
+            EquipPlayerWeapon(client, entity);
+        }
+
         int iPrevOwner = GetEntProp(entity, Prop_Send, "m_hPrevOwner");
         if(iPrevOwner == -1)
         {
@@ -39,7 +45,6 @@ public Action GiveNamedItemPre(int client, char szClassname[64], CEconItemView &
 {
     if(g_iStoredKnife[client] != 0)
     {
-        IgnoredCEconItemView = false;
         if(IsFakeClient(client))
         {
             return Plugin_Continue;
@@ -50,43 +55,29 @@ public Action GiveNamedItemPre(int client, char szClassname[64], CEconItemView &
         {
             return Plugin_Handled;
         }
-
-        int iDefIndex = CSGOItems_GetWeaponDefIndexByClassName(szClassname);
+        
+        
+        int iDefIndex = eItems_GetWeaponDefIndexByClassName(szClassname);
 
         if(iDefIndex <= -1)
         {
             return Plugin_Continue;
         }
         
-        if(!CSGOItems_IsDefIndexKnife(iDefIndex))
+        if(!eItems_IsDefIndexKnife(iDefIndex))
         {
             return Plugin_Continue;
         }
 
-        if(!CSGOItems_IsDefIndexKnife(g_iStoredKnife[client]))
+        if(!eItems_IsDefIndexKnife(g_iStoredKnife[client]))
         {
             return Plugin_Continue;
         }
 
-        float fOrigin[3]; GetClientAbsOrigin(client, fOrigin);
-        float fAngles[3]; GetClientAbsAngles(client, fAngles);
 
-        CSGOItems_GetWeaponClassNameByDefIndex(g_iStoredKnife[client], szClassname, sizeof(szClassname));
 
-        int iWeapon = CreateEntityByName(szClassname);
-
-        if (!IsValidEntity(iWeapon))
-        {
-            return Plugin_Changed;
-        }
-
-        SetEntProp(iWeapon, Prop_Send, "m_iItemIDLow", -1);
-        SetEntProp(iWeapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
-        SetEntProp(iWeapon, Prop_Send, "m_iItemDefinitionIndex", g_iStoredKnife[client]);
-        SetEntProp(iWeapon, Prop_Send, "m_bInitialized", 1);
-
-        Item = PTaH_GetEconItemViewFromWeapon(iWeapon);
-        AcceptEntityInput(iWeapon, "Kill");
+        eItems_GetWeaponClassNameByDefIndex(g_iStoredKnife[client], szClassname, sizeof(szClassname));
+        IgnoredCEconItemView = true;
     }
     return Plugin_Changed;
 }

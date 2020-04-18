@@ -149,15 +149,19 @@ public void Database_OnClientDataRecived(Database db, DBResultSet results, const
 					{
 						if(bWearable == true)
 						{
-							int iSkinNum = CSGOItems_GetSkinNumByDefIndex(iSkinDefIndex);
-							if(CSGOItems_IsSkinNumGloveApplicable(iSkinNum))
+							int iSkinNum = eItems_GetSkinNumByDefIndex(iSkinDefIndex);
+							if(eItems_IsSkinNumGloveApplicable(iSkinNum))
 							{
 								Format(g_szStoredGloves[client], sizeof(g_szStoredGloves[]), "%i;%i", iDefIndex, iSkinDefIndex);
 							}
 						}
 						else
 						{
-							int iWeaponNum = CSGOItems_GetWeaponNumByDefIndex(iDefIndex);
+							int iWeaponNum = eItems_GetWeaponNumByDefIndex(iDefIndex);
+							if(iWeaponNum == -1)
+							{
+								continue;
+							}
 							results.FetchString(3, szNameTag, sizeof(szNameTag));
 							int iStatTrack = results.FetchInt(4);
 							int iStatTrack_Enabled = results.FetchInt(5);
@@ -175,7 +179,7 @@ public void Database_OnClientDataRecived(Database db, DBResultSet results, const
 							g_ArrayStoredWeaponsStatTrackEnabled[client].Set(iWeaponNum, iStatTrack_Enabled);
 							g_ArrayStoredWeaponsStatTrackKills[client].Set(iWeaponNum, iStatTrack);
 							g_ArrayStoredWeaponsPaint[client].Set(iWeaponNum, iSkinDefIndex);
-							if(CSGOItems_IsDefIndexKnife(iDefIndex))
+							if(eItems_IsDefIndexKnife(iDefIndex))
 							{
 								if(bActive == true && !IsKnifeForbidden(iDefIndex))
 								{
@@ -203,7 +207,7 @@ public void Database_SaveClientData(int client)
 		{
 			if(g_ArrayModifiedWeapons[client].Get(iWeaponNum) > 0)
 			{
-				int iDefIndex = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeaponNum);
+				int iDefIndex = eItems_GetWeaponDefIndexByWeaponNum(iWeaponNum);
 				int iSkinDef = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
 				int iQuality = g_ArrayStoredWeaponsQuality[client].Get(iWeaponNum);
 				int iPattern = g_ArrayStoredWeaponsPattern[client].Get(iWeaponNum);
@@ -215,7 +219,7 @@ public void Database_SaveClientData(int client)
 				char szNameTagEscaped[1024];
 				g_ArrayStoredWeaponsNametag[client].GetString(iWeaponNum, szNameTag, sizeof(szNameTag));
 				g_hDatabase.Escape(szNameTag, szNameTagEscaped, sizeof(szNameTagEscaped));
-				Format(szBuffer, sizeof(szBuffer), "INSERT INTO tweaker_user_items (fk_user, fk_item, fk_skin, nametag, stattrack, stattrack_enabled, wear, quality, pattern, is_wearable, is_active) VALUES ('%i', '%i', '%i', '%s', '%i', '%i', '%f', '%i', '%i', '0', '%i') ON DUPLICATE KEY UPDATE fk_skin = %i, nametag = '%s', stattrack = %i, stattrack_enabled = %i, wear = %f, quality = %i, pattern = %i, is_wearable = false, is_active = %i;", g_iUserDbId[client], iDefIndex, iSkinDef, szNameTagEscaped, iStatTrack, iStatTrack_Enabled, fWear, iQuality, iPattern, CSGOItems_IsDefIndexKnife(iDefIndex)?(g_iStoredKnife[client] == iDefIndex?1:0):0 ,iSkinDef, szNameTagEscaped, iStatTrack ,iStatTrack_Enabled, fWear, iQuality, iPattern, CSGOItems_IsDefIndexKnife(iDefIndex)?(g_iStoredKnife[client] == iDefIndex?1:0):0);
+				Format(szBuffer, sizeof(szBuffer), "INSERT INTO tweaker_user_items (fk_user, fk_item, fk_skin, nametag, stattrack, stattrack_enabled, wear, quality, pattern, is_wearable, is_active) VALUES ('%i', '%i', '%i', '%s', '%i', '%i', '%f', '%i', '%i', '0', '%i') ON DUPLICATE KEY UPDATE fk_skin = %i, nametag = '%s', stattrack = %i, stattrack_enabled = %i, wear = %f, quality = %i, pattern = %i, is_wearable = false, is_active = %i;", g_iUserDbId[client], iDefIndex, iSkinDef, szNameTagEscaped, iStatTrack, iStatTrack_Enabled, fWear, iQuality, iPattern, eItems_IsDefIndexKnife(iDefIndex)?(g_iStoredKnife[client] == iDefIndex?1:0):0 ,iSkinDef, szNameTagEscaped, iStatTrack ,iStatTrack_Enabled, fWear, iQuality, iPattern, eItems_IsDefIndexKnife(iDefIndex)?(g_iStoredKnife[client] == iDefIndex?1:0):0);
 				g_hDatabase.Query(Database_DoNothing, szBuffer, GetClientUserId(client));
 			}
 		}

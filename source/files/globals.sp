@@ -19,9 +19,6 @@ ArrayList g_ArrayModifiedWeapons[MAXPLAYERS+1] = {null,...};
 ArrayList g_ArrayStoredWeaponsStatTrackEnabled[MAXPLAYERS+1] = {null,...};
 ArrayList g_ArrayStoredWeaponsStatTrackKills[MAXPLAYERS+1] = {null,...};
 
-StringMap g_SMPhaseList = null;
-
-
 bool g_bIsChangingPattern[MAXPLAYERS+1] = {false,...};
 bool g_bIsChangingPatternValue[MAXPLAYERS+1] = {false,...};
 bool g_bIsChangingNametag[MAXPLAYERS+1] = {false,...};

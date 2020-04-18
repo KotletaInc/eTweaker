@@ -21,25 +21,16 @@ public void BuildInformationsMenu(int client)
         char szDisplayName[32];
         char szSkinName[32];
         char szGlovesName[32];
-        char szSkinDef[12];
-        char szKnifePhase[32];
         Menu menu = new Menu(h_informationsmenu);
         menu.SetTitle("- Tweaker settings -");
         GetKnifeDisplayName(g_iStoredKnife[client], szDisplayName, sizeof(szDisplayName));
         Format(szBuffer, sizeof(szBuffer), "Selected Knife: \n%s",szDisplayName);
         if(g_iStoredKnife[client] != 0)
         {
-            int iPaintKit = g_ArrayStoredWeaponsPaint[client].Get(CSGOItems_GetWeaponNumByDefIndex(g_iStoredKnife[client]));
+            int iPaintKit = g_ArrayStoredWeaponsPaint[client].Get(eItems_GetWeaponNumByDefIndex(g_iStoredKnife[client]));
             if(iPaintKit > 1)
             {
-                CSGOItems_GetSkinDisplayNameByDefIndex(iPaintKit, szSkinName, sizeof(szSkinName));
-                IntToString(iPaintKit, szSkinDef, sizeof(szSkinDef));
-                if(g_SMPhaseList.GetString(szSkinDef, szKnifePhase, sizeof(szKnifePhase)))
-                {
-                    ReplaceString(szKnifePhase, sizeof(szKnifePhase), "(", "");
-                    ReplaceString(szKnifePhase, sizeof(szKnifePhase), ")", "");
-                    Format(szSkinName, sizeof(szSkinName), "%s - %s",szSkinName, szKnifePhase);
-                }
+                eItems_GetSkinDisplayNameByDefIndex(iPaintKit, szSkinName, sizeof(szSkinName));
                 Format(szBuffer, sizeof(szBuffer), "%s (%s)",szBuffer, szSkinName);
             }
         }
@@ -52,8 +43,8 @@ public void BuildInformationsMenu(int client)
 			{
                 int iGloveDef = StringToInt(szItemEx[0]);
                 int iSkinDef = StringToInt(szItemEx[1]);
-                CSGOItems_GetGlovesDisplayNameByDefIndex(iGloveDef, szGlovesName, sizeof(szGlovesName));
-                CSGOItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinName, sizeof(szSkinName));
+                eItems_GetGlovesDisplayNameByDefIndex(iGloveDef, szGlovesName, sizeof(szGlovesName));
+                eItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinName, sizeof(szSkinName));
                 Format(szDisplayName, sizeof(szDisplayName), "%s (%s)", szGlovesName, szSkinName);
 			}
 		}
@@ -81,7 +72,7 @@ stock void BuildInformationMenuForWeapon(int client, int iWeapon, bool bCurrent 
     }
     else
     {
-        int iSlot = CSGOItems_GetWeaponSlotByWeaponNum(iWeapon);
+        int iSlot = eItems_GetWeaponSlotByWeaponNum(iWeapon);
         switch(iSlot)
         {
             case CS_SLOT_PRIMARY: menu = new Menu(h_informationsmenuforprimaryweapon);    
@@ -92,24 +83,12 @@ stock void BuildInformationMenuForWeapon(int client, int iWeapon, bool bCurrent 
     char szTitle[512];
     char szWeaponDisplayName[32];
     char szSkinDisplayName[32];
-    char szSkinDef[12];
-    char szKnifePhase[16];
-    int iDefIndex = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeapon);
-    CSGOItems_GetWeaponDisplayNameByDefIndex(iDefIndex, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+    int iDefIndex = eItems_GetWeaponDefIndexByWeaponNum(iWeapon);
+    eItems_GetWeaponDisplayNameByDefIndex(iDefIndex, szWeaponDisplayName, sizeof(szWeaponDisplayName));
     Format(szTitle, sizeof(szTitle), "- %s settings -\n \n", szWeaponDisplayName);
-    int iWeaponNum = CSGOItems_GetWeaponNumByDefIndex(iDefIndex);
+    int iWeaponNum = eItems_GetWeaponNumByDefIndex(iDefIndex);
     int iWeaponSkinDef = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
-    CSGOItems_GetSkinDisplayNameByDefIndex(iWeaponSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
-    if(CSGOItems_IsDefIndexKnife(iDefIndex))
-    {
-        IntToString(iWeaponSkinDef, szSkinDef, sizeof(szSkinDef));
-        if(g_SMPhaseList.GetString(szSkinDef, szKnifePhase, sizeof(szKnifePhase)))
-        {
-            ReplaceString(szKnifePhase, sizeof(szKnifePhase), "(", "");
-            ReplaceString(szKnifePhase, sizeof(szKnifePhase), ")", "");
-            Format(szSkinDisplayName, sizeof(szSkinDisplayName), "%s - %s",szSkinDisplayName, szKnifePhase);
-        }
-    }
+    eItems_GetSkinDisplayNameByDefIndex(iWeaponSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
     Format(szTitle, sizeof(szTitle), "%sSkin: %s\n",szTitle, szSkinDisplayName);
     bool bStatTrackEnabled = view_as<bool>(g_ArrayStoredWeaponsStatTrackEnabled[client].Get(iWeaponNum));
     Format(szTitle, sizeof(szTitle), "%sStatTrak™: %s\n",szTitle, bStatTrackEnabled?"Enabled":"Disabled");
@@ -141,10 +120,10 @@ public void BuildInformationMenuBySlot(int client, int slot)
 
         for(int iWeapon = 0; iWeapon < g_iWeaponCount; iWeapon++)
         {
-            if(CSGOItems_GetWeaponSlotByWeaponNum(iWeapon) == slot)
+            if(eItems_GetWeaponSlotByWeaponNum(iWeapon) == slot)
             {
-                CSGOItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
-                iWepDef = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeapon);
+                eItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+                iWepDef = eItems_GetWeaponDefIndexByWeaponNum(iWeapon);
                 if(IsWeaponForbiddenByCvar(iWepDef))
                 {
                     continue;
@@ -196,7 +175,7 @@ stock void ShowActiveWeaponSkinsMenu(int client, int iWeaponNum, int position = 
     {
         Menu menu = new Menu(h_activewepskins);
         char szWeaponDisplayName[32];
-        CSGOItems_GetWeaponDisplayNameByWeaponNum(iWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+        eItems_GetWeaponDisplayNameByWeaponNum(iWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
 
         menu.SetTitle("- %s - Paints", szWeaponDisplayName);
         if(g_ArrayWeapons[iWeaponNum].Length > 0)
@@ -207,7 +186,6 @@ stock void ShowActiveWeaponSkinsMenu(int client, int iWeaponNum, int position = 
             int iRandomSkin = GetRandomInt(0, g_ArrayWeapons[iWeaponNum].Length -1);
             int iRandomSkinDef = g_ArrayWeapons[iWeaponNum].Get(iRandomSkin);
             char szRandomSkinDef[12];
-            char szKnifePhase[32];
             IntToString(iRandomSkinDef, szRandomSkinDef, sizeof(szRandomSkinDef));
             if(!(g_cvHideDisabledSelections.BoolValue && !g_cvAllowCurrentWeaponRandomSkin.BoolValue))
             {
@@ -217,11 +195,7 @@ stock void ShowActiveWeaponSkinsMenu(int client, int iWeaponNum, int position = 
             {
                 int iSkinDef = g_ArrayWeapons[iWeaponNum].Get(iSkin);
                 IntToString(iSkinDef, szSkinDef, sizeof(szSkinDef));
-                CSGOItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
-                if(g_SMPhaseList.GetString(szSkinDef, szKnifePhase, sizeof(szKnifePhase)))
-                {
-                    Format(szSkinDisplayName, sizeof(szSkinDisplayName), "%s %s",szSkinDisplayName, szKnifePhase);
-                }
+                eItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
                 menu.AddItem(szSkinDef,szSkinDisplayName, iSkinDef != iCurrentSkinDef?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
             }
         }
@@ -253,10 +227,9 @@ stock void ShowAllWeaponsPaints(int client, int iWeaponNum, int position = 0)
             char szSkinDisplayName[32];
             int iCurrentSkinDef = g_ArrayStoredWeaponsPaint[client].Get(iWeaponNum);
             int iRandomSkin = GetRandomInt(0, g_iSkinCount - 1);
-            int iRandomSkinDef = CSGOItems_GetSkinDefIndexBySkinNum(iRandomSkin);
+            int iRandomSkinDef = eItems_GetSkinDefIndexBySkinNum(iRandomSkin);
             char szRandomSkinDef[12];
             char szSkinDef[12];
-            char szKnifePhase[32];
             IntToString(iRandomSkinDef, szRandomSkinDef, sizeof(szRandomSkinDef));
             if(!(g_cvHideDisabledSelections.BoolValue && !g_cvAllowAllSkinsRandomSkin.BoolValue))
             {
@@ -265,13 +238,9 @@ stock void ShowAllWeaponsPaints(int client, int iWeaponNum, int position = 0)
             
             for(int iSkin = 0; iSkin < g_iSkinCount; iSkin++)
             {
-                int iSkinDef = CSGOItems_GetSkinDefIndexBySkinNum(iSkin);
+                int iSkinDef = eItems_GetSkinDefIndexBySkinNum(iSkin);
                 IntToString(iSkinDef, szSkinDef, sizeof(szSkinDef));
-                CSGOItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
-                if(g_SMPhaseList.GetString(szSkinDef, szKnifePhase, sizeof(szKnifePhase)))
-                {
-                    Format(szSkinDisplayName, sizeof(szSkinDisplayName), "%s %s",szSkinDisplayName, szKnifePhase);
-                }
+                eItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
                 menu.AddItem(szSkinDef, szSkinDisplayName, iCurrentSkinDef == iSkinDef?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
             }
         }
@@ -303,10 +272,10 @@ public void ShowWeaponsBySlotMenu(int client, int slot)
 
         for(int iWeapon = 0; iWeapon < g_iWeaponCount; iWeapon++)
         {
-            if(CSGOItems_GetWeaponSlotByWeaponNum(iWeapon) == slot)
+            if(eItems_GetWeaponSlotByWeaponNum(iWeapon) == slot)
             {
-                CSGOItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
-                iWepDef = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeapon);
+                eItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+                iWepDef = eItems_GetWeaponDefIndexByWeaponNum(iWeapon);
                 if(IsWeaponForbiddenByCvar(iWepDef))
                 {
                     continue;
@@ -329,8 +298,8 @@ stock void ShowWeaponNumSkinsMenu(int client, int iWeaponNum, int position = 0)
     {
         Menu menu = new Menu(h_wepnumskins);
         char szWeaponDisplayName[32];
-        int iWepDef = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeaponNum);
-        CSGOItems_GetWeaponDisplayNameByWeaponNum(iWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+        int iWepDef = eItems_GetWeaponDefIndexByWeaponNum(iWeaponNum);
+        eItems_GetWeaponDisplayNameByWeaponNum(iWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
         menu.SetTitle("- %s - Paints", szWeaponDisplayName);
         if(g_ArrayWeapons[iWeaponNum].Length > 0)
         {
@@ -340,8 +309,6 @@ stock void ShowWeaponNumSkinsMenu(int client, int iWeaponNum, int position = 0)
             int iRandomSkin = GetRandomInt(0, g_ArrayWeapons[iWeaponNum].Length -1);
             int iRandomSkinDef = g_ArrayWeapons[iWeaponNum].Get(iRandomSkin);
             char szRandomSkinDef[12];
-            char szSkinDef[12];
-            char szKnifePhase[32];
             IntToString(iRandomSkinDef, szRandomSkinDef, sizeof(szRandomSkinDef));
             Format(szMenuKey, sizeof(szMenuKey), "%i;%i", iWeaponNum, iRandomSkinDef);
             if(!(g_cvHideDisabledSelections.BoolValue && !g_cvAllowWeaponRandomSkin.BoolValue))
@@ -352,12 +319,7 @@ stock void ShowWeaponNumSkinsMenu(int client, int iWeaponNum, int position = 0)
             {
             int iSkinDef = g_ArrayWeapons[iWeaponNum].Get(iSkin);
             Format(szMenuKey, sizeof(szMenuKey), "%i;%i", iWeaponNum, iSkinDef);
-            CSGOItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
-            IntToString(iSkinDef, szSkinDef, sizeof(szSkinDef));
-            if(g_SMPhaseList.GetString(szSkinDef, szKnifePhase, sizeof(szKnifePhase)))
-            {
-                Format(szSkinDisplayName, sizeof(szSkinDisplayName), "%s %s",szSkinDisplayName, szKnifePhase);
-            }
+            eItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
             menu.AddItem(szMenuKey, szSkinDisplayName, iCurrentSkinDef == iSkinDef?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
             }
         }
@@ -365,7 +327,7 @@ stock void ShowWeaponNumSkinsMenu(int client, int iWeaponNum, int position = 0)
         {
             menu.AddItem("none", "No skin available", ITEMDRAW_DISABLED);
         }
-        if(CSGOItems_IsDefIndexKnife(iWepDef))
+        if(eItems_IsDefIndexKnife(iWepDef))
         {
             menu.ExitBackButton = true;
         }
@@ -406,12 +368,12 @@ stock void BuildWeaponQualityMenu(int client, int position = 0)
     if(IsValidClient(client, true))
     {
         char szWeaponDisplayName[32];
-        int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-        CSGOItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+        int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+        eItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
         int iWepQuality = g_ArrayStoredWeaponsQuality[client].Get(iActiveWeaponNum);
         Menu menu = new Menu(h_weaponqualitymenu);
         menu.SetTitle("- %s quality -", szWeaponDisplayName);
-        if(CSGOItems_GetWeaponSlotByWeaponNum(iActiveWeaponNum) <= CS_SLOT_KNIFE)
+        if(eItems_GetWeaponSlotByWeaponNum(iActiveWeaponNum) <= CS_SLOT_KNIFE)
         {
             menu.AddItem("0", "Normal", iWepQuality == 0?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
             menu.AddItem("1", "Genuine", iWepQuality == 1?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
@@ -446,12 +408,12 @@ stock void BuildWeaponWearMenu(int client, int position = 0)
     if(IsValidClient(client, true))
     {
         char szWeaponDisplayName[32];
-        int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-        CSGOItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+        int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+        eItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
         float iWepWear = g_ArrayStoredWeaponsWear[client].Get(iActiveWeaponNum);
         Menu menu = new Menu(h_weaponwearmenu);
         menu.SetTitle("- %s wear -", szWeaponDisplayName);
-        if(CSGOItems_GetWeaponSlotByWeaponNum(iActiveWeaponNum) <= CS_SLOT_KNIFE)
+        if(eItems_GetWeaponSlotByWeaponNum(iActiveWeaponNum) <= CS_SLOT_KNIFE)
         {
             menu.AddItem("PR", "Pristine", iWepWear == 1.0?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
             menu.AddItem("FN", "Factory New", iWepWear == 1000.0?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
@@ -482,13 +444,13 @@ public void BuilWeaponPatternMenu(int client)
     if(IsValidClient(client, true))
     {
         char szWeaponDisplayName[32];
-        int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-        CSGOItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+        int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+        eItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
         int iWepPattern = g_ArrayStoredWeaponsPattern[client].Get(iActiveWeaponNum);
         int iWepPaint = g_ArrayStoredWeaponsPaint[client].Get(iActiveWeaponNum);
         Menu menu = new Menu(h_weaponpatternmenu);
         menu.SetTitle("- %s pattern [%i] -", szWeaponDisplayName, iWepPattern);
-        if(CSGOItems_GetWeaponSlotByWeaponNum(iActiveWeaponNum) <= CS_SLOT_KNIFE && iWepPaint > 1)
+        if(eItems_GetWeaponSlotByWeaponNum(iActiveWeaponNum) <= CS_SLOT_KNIFE && iWepPaint > 1)
         {
             menu.AddItem("inc10", "Increase by 10", iWepPattern + 10 <= 2147483647?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
             menu.AddItem("inc100", "Increase by 100", iWepPattern + 100 <= 2147483647?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
@@ -512,9 +474,9 @@ public void BuildWeaponNametagMenu(int client)
     {
         char szWeaponDisplayName[32];
         char szNameTag[32];
-        int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
+        int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
         g_ArrayStoredWeaponsNametag[client].GetString(iActiveWeaponNum, szNameTag, sizeof(szNameTag));
-        CSGOItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+        eItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
         Menu menu = new Menu(h_weaponnametagmenu);
         menu.SetTitle("- %s NameTag -", szWeaponDisplayName);
         menu.AddItem("remove", "Remove nametag", strlen(szNameTag) > 0?ITEMDRAW_DEFAULT:ITEMDRAW_DISABLED);
@@ -530,8 +492,8 @@ public void BuildWeaponStatTrackMenu(int client)
     {
         char szWeaponDisplayName[32];
         char szBuffer[32];
-        int iActiveWeaponNum = CSGOItems_GetActiveWeaponNum(client);
-        CSGOItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+        int iActiveWeaponNum = eItems_GetActiveWeaponNum(client);
+        eItems_GetWeaponDisplayNameByWeaponNum(iActiveWeaponNum, szWeaponDisplayName, sizeof(szWeaponDisplayName));
         bool bStatTrackEnabled = view_as<bool>(g_ArrayStoredWeaponsStatTrackEnabled[client].Get(iActiveWeaponNum));
         int iKills = g_ArrayStoredWeaponsStatTrackKills[client].Get(iActiveWeaponNum);
         Menu menu = new Menu(h_weaponstattrackmenu);
@@ -566,10 +528,10 @@ stock void BuildKnivesMenu(int client, int position = 0)
         menu.AddItem("41", "Golden Knife", g_iStoredKnife[client] == 41?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
         for(int iWeapon = 0; iWeapon < g_iWeaponCount; iWeapon++)
         {
-            if(CSGOItems_GetWeaponSlotByWeaponNum(iWeapon) == CS_SLOT_KNIFE)
+            if(eItems_GetWeaponSlotByWeaponNum(iWeapon) == CS_SLOT_KNIFE)
             {
-                CSGOItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
-                int iWepDef = CSGOItems_GetWeaponDefIndexByWeaponNum(iWeapon);
+                eItems_GetWeaponDisplayNameByWeaponNum(iWeapon, szWeaponDisplayName, sizeof(szWeaponDisplayName));
+                int iWepDef = eItems_GetWeaponDefIndexByWeaponNum(iWeapon);
                 if(IsWeaponForbiddenByCvar(iWepDef))
                 {
                     continue;
@@ -612,7 +574,7 @@ public void BuildGlovesMenu(int client)
             if(iGlove != 1 && iGlove != 2)
             {
                 IntToString(iGlove, szGlovesNum, sizeof(szGlovesNum));
-                CSGOItems_GetGlovesDisplayNameByGlovesNum(iGlove, szGlovesDisplayName, sizeof(szGlovesDisplayName));
+                eItems_GetGlovesDisplayNameByGlovesNum(iGlove, szGlovesDisplayName, sizeof(szGlovesDisplayName));
                 menu.AddItem(szGlovesNum, szGlovesDisplayName);
             }
         }
@@ -630,15 +592,15 @@ public void BuildGloveSkinsMenu(int client, int iGloveNum)
         char szGlovesDisplayName[32];
         char szSkinDisplayName[32];
         char szMenuKey[32];
-        int iGloveDef = CSGOItems_GetGlovesDefIndexByGlovesNum(iGloveNum);
-        CSGOItems_GetGlovesDisplayNameByGlovesNum(iGloveNum, szGlovesDisplayName, sizeof(szGlovesDisplayName));
+        int iGloveDef = eItems_GetGlovesDefIndexByGlovesNum(iGloveNum);
+        eItems_GetGlovesDisplayNameByGlovesNum(iGloveNum, szGlovesDisplayName, sizeof(szGlovesDisplayName));
         Menu menu = new Menu(h_gloveskinmenu);
         menu.SetTitle("- %s -", szGlovesDisplayName);
         for(int iSkin = 0; iSkin < g_ArrayGloves[iGloveNum].Length; iSkin++)
         {
             int iSkinDef = g_ArrayGloves[iGloveNum].Get(iSkin);
             Format(szMenuKey, sizeof(szMenuKey), "%i;%i",iGloveDef,iSkinDef);
-            CSGOItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
+            eItems_GetSkinDisplayNameByDefIndex(iSkinDef, szSkinDisplayName, sizeof(szSkinDisplayName));
             menu.AddItem(szMenuKey, szSkinDisplayName, iStoredSkinDef == iSkinDef?ITEMDRAW_DISABLED:ITEMDRAW_DEFAULT);
         }
         menu.ExitBackButton = true;
