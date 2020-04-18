@@ -28,11 +28,11 @@ public void GiveNamedItemPost(int client, const char[] classname, const CEconIte
 {
     if(IsValidClient(client, true) && eItems_IsValidWeapon(entity))
     {
-        int iDefIndex = eItems_GetWeaponDefIndexByClassName(classname);
+        /*int iDefIndex = eItems_GetWeaponDefIndexByClassName(classname);
         if(eItems_IsDefIndexKnife(iDefIndex))
         {
             EquipPlayerWeapon(client, entity);
-        }
+        }*/
 
         int iPrevOwner = GetEntProp(entity, Prop_Send, "m_hPrevOwner");
         if(iPrevOwner == -1)
@@ -78,6 +78,21 @@ public Action GiveNamedItemPre(int client, char szClassname[64], CEconItemView &
 
         eItems_GetWeaponClassNameByDefIndex(g_iStoredKnife[client], szClassname, sizeof(szClassname));
         IgnoredCEconItemView = true;
+
+        int iWeapon = CreateEntityByName(szClassname);
+
+        if (!IsValidEntity(iWeapon))
+        {
+            return Plugin_Changed;
+        }
+
+        SetEntProp(iWeapon, Prop_Send, "m_iItemIDLow", -1);
+        SetEntProp(iWeapon, Prop_Send, "m_iAccountID", GetSteamAccountID(client));
+        SetEntProp(iWeapon, Prop_Send, "m_iItemDefinitionIndex", g_iStoredKnife[client]);
+        SetEntProp(iWeapon, Prop_Send, "m_bInitialized", 1);
+
+        Item = PTaH_GetEconItemViewFromWeapon(iWeapon);
+        AcceptEntityInput(iWeapon, "Kill");
     }
     return Plugin_Changed;
 }

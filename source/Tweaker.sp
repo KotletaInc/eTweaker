@@ -11,7 +11,7 @@
 #pragma newdecls required
 
 #define AUTHOR "ESK0"
-#define VERSION "2.0"
+#define VERSION "2.0a"
 #define TAG_NOCLR "[eTweaker]"
 
 #include "files/globals.sp"
